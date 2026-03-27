@@ -1,6 +1,5 @@
 namespace ForumApi.DTOs.Messages;
-
-public record UpdateMessageRequest
+public record MessageRequest
 (
     string Content
 );

@@ -1,35 +1,48 @@
 // Services/UpVoteService.cs
 using ForumApi.Models;
-using Microsoft.EntityFrameworkCore;
-public class UpVoteService
-{
-    private readonly ForumContext _context;
 
-    public UpVoteService(ForumContext context)
+namespace ForumApi.Services;
+public interface IUpVoteService
+{
+    Task<bool> UpVoteAsync(int messageId, string userId);
+    Task<bool> DeleteUpVoteAsync(int messageId, string userId);
+}
+
+public class UpVoteService : IUpVoteService
+{
+    private readonly IUpVoteRepository _upVoteRepository;
+
+    public UpVoteService(IUpVoteRepository upVoteRepository)
     {
-        _context = context;
+        _upVoteRepository = upVoteRepository;
     }
 
-    public async Task<int?> UpVoteAsync(int messageId, string userId)
+    public async Task<bool> UpVoteAsync(int messageId, string userId)
     {
-        var message = await _context.Messages.FindAsync(messageId);
-        if (message == null)
-            return null;
-
-        var alreadyUpVoted = await _context.MessageUpVotes.AnyAsync(u => u.MessageId == messageId && u.CreatedByUserId == userId);
-
-        if (alreadyUpVoted)
-            return -1;
-
-        _context.MessageUpVotes.Add(new MessageUpVote
+        var upVote = new MessageUpVote
         {
             MessageId = messageId,
             CreatedByUserId = userId
-        });
+        };
 
-        await _context.SaveChangesAsync();
+        var createdUpVote = await _upVoteRepository.CreateUpVoteAsync(upVote);
+        if (createdUpVote == null)
+        {
+            return false;
+        }
 
-        return await _context.MessageUpVotes.CountAsync(u => u.MessageId == messageId);
+        return true;
+    }
+
+    public async Task<bool> DeleteUpVoteAsync(int messageId, string userId)
+    {
+        var success = await _upVoteRepository.DeleteUpVoteAsync(messageId, userId);
+        if (!success)
+        {
+            return false;
+        }
+
+        return true;
     }
 
 }

@@ -10,6 +10,7 @@ public class Message
     public DateTime? EditedAt { get; set; }
     public int UpvoteCount { get; set; } = 0;
     public required string CreatedByUserId { get; set; }
+    public required string CreatedByUsername { get; set; }
     public Topic Topic { get; set; }  = null!;
     public ICollection<MessageUpVote> Upvotes { get; set; } = new List<MessageUpVote>();
 }

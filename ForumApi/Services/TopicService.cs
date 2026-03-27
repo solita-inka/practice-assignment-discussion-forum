@@ -1,33 +1,34 @@
-using Microsoft.EntityFrameworkCore;
 using ForumApi.Models;
 using ForumApi.DTOs.Topics;
 
-public class TopicService
+public interface ITopicService
 {
-    private readonly ForumContext _context;
+    Task<IEnumerable<TopicSummaryDto>> GetAllAsync();
+    Task<TopicSummaryDto> CreateAsync(string title, string userId);
+    Task<bool> ModifyAsync(int id, string title, string userId);
+    Task<bool> DeleteAsync(int id);
+}
+public class TopicService : ITopicService
+{
+    private readonly ITopicRepository _topicRepository;
 
-    public TopicService(ForumContext context)
+    public TopicService(ITopicRepository topicRepository)
     {
-        _context = context;
+        _topicRepository = topicRepository;
     }
 
     public async Task<IEnumerable<TopicSummaryDto>> GetAllAsync()
     {
-        return await _context.Topics
-            .OrderByDescending(t => t.Messages
+        var topics = await _topicRepository.GetAllTopicsAsync();
+        return topics.Select(t => new TopicSummaryDto(
+            t.Id,
+            t.Title,
+            t.Messages.Count,
+            t.Messages
                 .OrderByDescending(m => m.CreatedAt)
                 .Select(m => (DateTime?)m.CreatedAt)
-                .FirstOrDefault())
-            .Select(t => new TopicSummaryDto(
-                t.Id,
-                t.Title,
-                t.Messages.Count,
-                t.Messages
-                    .OrderByDescending(m => m.CreatedAt)
-                    .Select(m => (DateTime?)m.CreatedAt)
-                    .FirstOrDefault()
-            ))
-            .ToListAsync();
+                .FirstOrDefault()
+        ));
     }
 
     public async Task<TopicSummaryDto> CreateAsync(string title, string userId)
@@ -39,8 +40,8 @@ public class TopicService
             CreatedByUserId = userId
         };
 
-        _context.Topics.Add(topic);
-        await _context.SaveChangesAsync();
+        await _topicRepository.CreateTopicAsync(topic);
+
         var topicDto = new TopicSummaryDto(
             topic.Id,
             topic.Title,
@@ -51,37 +52,16 @@ public class TopicService
         return topicDto;
     }
 
-    public async Task<TopicSummaryDto?> ModifyAsync(int id, string title)
+    public async Task<bool> ModifyAsync(int id, string title, string userId)
     {
-        var topic = await _context.Topics.FindAsync(id);
-        if (topic == null)
-            return null;
+       
+        return await _topicRepository.UpdateTopicAsync(id, title);
 
-        topic.Title = title;
-        await _context.SaveChangesAsync();
-
-        var topicDto = new TopicSummaryDto(
-            topic.Id,
-            topic.Title,
-            topic.Messages.Count,
-            topic.Messages
-                .OrderByDescending(m => m.CreatedAt)
-                .Select(m => (DateTime?)m.CreatedAt)
-                .FirstOrDefault()
-        );
-
-        return topicDto;
     }
 
     public async Task<bool> DeleteAsync(int id)
     {
-        var topic = await _context.Topics.FindAsync(id);
-        if (topic == null)
-            return false;
-
-        _context.Topics.Remove(topic);
-        await _context.SaveChangesAsync();
-
-        return true;
+        return await _topicRepository.DeleteTopicAsync(id);
+    
     }
 }

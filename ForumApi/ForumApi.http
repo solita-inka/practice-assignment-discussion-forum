@@ -1,38 +1,130 @@
 @ForumApi_HostAddress = http://localhost:5256
-
-GET {{ForumApi_HostAddress}}/api/topics
-Accept: application/json
+@adminUserId = 1
+@adminUsername = alice
+@normalUserId = 2
+@normalUsername = bob
 
 ###
+GET {{ForumApi_HostAddress}}/api/topics
+Accept: application/json
+X-Mock-UserId: {{normalUserId}}
+X-Mock-Username: {{normalUsername}}
+X-Mock-Role: User
 
+###
 POST {{ForumApi_HostAddress}}/api/topics
 Content-Type: application/json
+X-Mock-UserId: {{adminUserId}}
+X-Mock-Username: {{adminUsername}}
+X-Mock-Role: Admin
 
 {
   "title": "Sports"
 }
 
 ###
+POST {{ForumApi_HostAddress}}/api/topics
+Content-Type: application/json
+X-Mock-UserId: {{normalUserId}}
+X-Mock-Username: {{normalUsername}}
+X-Mock-Role: User
+
+{
+  "title": "Dogs"
+}
+
+###
 PUT {{ForumApi_HostAddress}}/api/topics/1
 Content-Type: application/json
+X-Mock-UserId: {{adminUserId}}
+X-Mock-Username: {{adminUsername}}
+X-Mock-Role: Admin
 
 {
   "title": "Movies"
 }
 
 ###
-
-DELETE {{ForumApi_HostAddress}}/api/topics/1
-
-###
-POST {{ForumApi_HostAddress}}/api/topics/2/messages
+PUT {{ForumApi_HostAddress}}/api/topics/1
 Content-Type: application/json
+X-Mock-UserId: {{normalUserId}}
+X-Mock-Username: {{normalUsername}}
+X-Mock-Role: User
 
 {
-  "content": "I love movies",
-  "userId": "anonymous"
+  "title": "Horror movies"
 }
 
 ###
-GET {{ForumApi_HostAddress}}/api/topics/1003/messages
+DELETE {{ForumApi_HostAddress}}/api/topics/1
+X-Mock-UserId: {{normalUserId}}
+X-Mock-Username: {{normalUsername}}
+X-Mock-Role: User
+
+###
+DELETE {{ForumApi_HostAddress}}/api/topics/1
+X-Mock-UserId: {{adminUserId}}
+X-Mock-Username: {{adminUsername}}
+X-Mock-Role: Admin
+
+###
+POST {{ForumApi_HostAddress}}/api/topics/1/messages
+Content-Type: application/json
+X-Mock-UserId: {{normalUserId}}
+X-Mock-Username: {{normalUsername}}
+X-Mock-Role: User
+
+{
+  "content": "I love movies"
+}
+
+###
+PUT {{ForumApi_HostAddress}}/api/topics/1/messages/1
+Content-Type: application/json
+X-Mock-UserId: {{normalUserId}}
+X-Mock-Username: {{normalUsername}}
+X-Mock-Role: User
+
+{
+  "content": "I hate movies"
+}
+
+###
+PUT {{ForumApi_HostAddress}}/api/topics/1/messages/1
+Content-Type: application/json
+X-Mock-UserId: {{adminUserId}}
+X-Mock-Username: {{adminUsername}}
+X-Mock-Role: Admin
+
+{
+  "content": "I love horror movies"
+}
+
+###
+GET {{ForumApi_HostAddress}}/api/topics/1/messages
 Accept: application/json
+X-Mock-UserId: {{normalUserId}}
+X-Mock-Username: {{normalUsername}}
+X-Mock-Role: User
+
+###
+POST {{ForumApi_HostAddress}}/api/messages/1/upvotes
+Accept: application/json
+X-Mock-UserId: {{normalUserId}}
+X-Mock-Username: {{normalUsername}}
+X-Mock-Role: User
+
+###
+
+POST {{ForumApi_HostAddress}}/api/messages/1/upvotes
+Accept: application/json
+X-Mock-UserId: {{adminUserId}}
+X-Mock-Username: {{adminUsername}}
+X-Mock-Role: Admin
+
+###
+DELETE {{ForumApi_HostAddress}}/api/messages/1/upvotes
+Accept: application/json
+X-Mock-UserId: {{normalUserId}}
+X-Mock-Username: {{normalUsername}}
+X-Mock-Role: User

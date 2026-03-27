@@ -7,5 +7,5 @@ public record MessageResponse
     DateTime CreatedAt,
     DateTime? EditedAt,
     int UpVoteCount,
-    string? UserName
+    string UserName
 );
