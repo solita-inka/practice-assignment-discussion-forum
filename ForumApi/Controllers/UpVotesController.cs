@@ -1,12 +1,17 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
-using Microsoft.EntityFrameworkCore;
 using ForumApi.Services;
+
+public interface IUpVotesController
+{
+    Task<IActionResult> Upvote(int messageId);
+    Task<IActionResult> DeleteUpvote(int messageId);
+}
 
 [ApiController]
 [Route("api/messages/{messageId}/upvotes")]   
-public class UpVotesController : ControllerBase
+public class UpVotesController : ControllerBase, IUpVotesController
 {
     private readonly IUpVoteService _upVoteService;
 

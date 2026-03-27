@@ -3,9 +3,17 @@ using ForumApi.DTOs.Topics;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 
+public interface ITopicsController
+{
+    Task<ActionResult<IEnumerable<TopicSummaryDto>>> GetAll();
+    Task<ActionResult<TopicSummaryDto>> Create([FromBody] TopicRequest request);
+    Task<IActionResult> Delete(int id);
+    Task<ActionResult<TopicSummaryDto>> Modify(int id, [FromBody] TopicRequest request);
+}
+
 [ApiController]
 [Route("api/topics")]
-public class TopicsController : ControllerBase
+public class TopicsController : ControllerBase, ITopicsController
 {
     private readonly ITopicService _service;
 

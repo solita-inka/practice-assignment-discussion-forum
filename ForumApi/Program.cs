@@ -58,7 +58,10 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<ForumContext>();
-    db.Database.EnsureDeleted();
+    if (app.Environment.IsDevelopment())
+    {
+        db.Database.EnsureDeleted();
+    }
     db.Database.EnsureCreated();
 }
 

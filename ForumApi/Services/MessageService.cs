@@ -1,4 +1,3 @@
-using Microsoft.EntityFrameworkCore;
 using ForumApi.Models;
 using ForumApi.DTOs.Messages;
 
