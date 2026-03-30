@@ -53,3 +53,4 @@ jobs:
           slot-name: 'Production'
           package: .
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_98715E5E9CBB4C238BFCC39DB776C1C9 }}
+          startup-command: 'dotnet ForumApi.dll'
