@@ -29,6 +29,9 @@ jobs:
       - name: dotnet publish
         run: dotnet publish ForumApi/ForumApi.csproj -c Release -o ${{env.DOTNET_ROOT}}/myapp
 
+      - name: Create startup file
+        run: echo 'dotnet ForumApi.dll' > ${{env.DOTNET_ROOT}}/myapp/startup.sh
+
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
@@ -53,4 +56,3 @@ jobs:
           slot-name: 'Production'
           package: .
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_98715E5E9CBB4C238BFCC39DB776C1C9 }}
-          startup-command: 'dotnet ForumApi.dll'
