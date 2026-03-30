@@ -101,6 +101,14 @@ app.UseAuthorization();
 
 app.MapControllers();
 
+// On Azure Linux App Service, ensure we listen on the correct port
+var port = Environment.GetEnvironmentVariable("PORT") ?? Environment.GetEnvironmentVariable("WEBSITES_PORT");
+if (port != null)
+{
+    app.Urls.Clear();
+    app.Urls.Add($"http://0.0.0.0:{port}");
+}
+
 app.Run();
 
 public partial class Program { }
