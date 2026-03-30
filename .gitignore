@@ -26,6 +26,9 @@ x86/
 ## macOS
 .DS_Store
 
+## HTTP files with secrets
+ForumAPI.http
+
 ## User-specific files
 *.rsuser
 *.suo
