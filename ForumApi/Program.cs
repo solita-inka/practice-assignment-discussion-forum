@@ -37,13 +37,15 @@ if (builder.Environment.IsDevelopment())
 }
 else
 {
-    // 🔄 Later: replace with Entra ID (JWT)
+    // 🔄 Replace YOUR_TENANT_ID and YOUR_API_CLIENT_ID with real values from Entra ID
+    var azureAdConfig = builder.Configuration.GetSection("AzureAd");
+
     builder.Services
         .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         .AddJwtBearer(options =>
         {
-            options.Authority = "https://login.microsoftonline.com/YOUR_TENANT_ID/v2.0";
-            options.Audience = "YOUR_API_CLIENT_ID";
+            options.Authority = $"{azureAdConfig["Instance"]}{azureAdConfig["TenantId"]}/v2.0";
+            options.Audience = azureAdConfig["ClientId"];
         });
 }
 
