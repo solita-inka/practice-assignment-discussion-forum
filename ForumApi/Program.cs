@@ -45,7 +45,7 @@ else
         .AddJwtBearer(options =>
         {
             options.Authority = $"{azureAdConfig["Instance"]}{azureAdConfig["TenantId"]}/v2.0";
-            options.Audience = azureAdConfig["ClientId"];
+            options.Audience = $"api://{azureAdConfig["ClientId"]}";
         });
 }
 
