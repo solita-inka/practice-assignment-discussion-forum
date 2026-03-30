@@ -81,6 +81,20 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
+else
+{
+    app.UseExceptionHandler("/error");
+}
+
+// Health check endpoint - no auth required
+app.MapGet("/", () => Results.Ok(new
+{
+    status = "running",
+    environment = app.Environment.EnvironmentName,
+    hasConnectionString = !string.IsNullOrEmpty(connectionString)
+}));
+
+app.MapGet("/error", () => Results.Problem("An internal error occurred"));
 
 app.UseAuthentication(); // must come before Authorization
 app.UseAuthorization();
