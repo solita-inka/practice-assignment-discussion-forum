@@ -1,6 +1,6 @@
 @ForumApi_HostAddress = https://web-app-forum-a6excaf5gzaxb4aj.northeurope-01.azurewebsites.net
-@tenantId = REPLACE_WITH_YOUR_TENANT_ID
-@clientId = REPLACE_WITH_YOUR_CLIENT_ID
+@tenantId = df9168f1-9785-4389-a6ea-e30c48a1e65d
+@clientId = 262ce4e8-cefb-4794-b1b8-ce688858150a
 @clientSecret = REPLACE_WITH_YOUR_CLIENT_SECRET
 
 
