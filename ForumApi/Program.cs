@@ -60,11 +60,19 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<ForumContext>();
-    if (app.Environment.IsDevelopment())
+    try
     {
-        db.Database.EnsureDeleted();
+        if (app.Environment.IsDevelopment())
+        {
+            db.Database.EnsureDeleted();
+        }
+        db.Database.EnsureCreated();
     }
-    db.Database.EnsureCreated();
+    catch (Exception ex)
+    {
+        var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "Failed to initialize database");
+    }
 }
 
 
