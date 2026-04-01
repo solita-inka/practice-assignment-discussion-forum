@@ -97,6 +97,31 @@ app.MapGet("/", () => Results.Ok(new
     hasConnectionString = !string.IsNullOrEmpty(connectionString)
 }));
 
+// Temporary debug endpoint - REMOVE after debugging
+app.MapGet("/debug", (ForumContext db) =>
+{
+    try
+    {
+        var canConnect = db.Database.CanConnect();
+        return Results.Ok(new
+        {
+            connectionStringSource = !string.IsNullOrEmpty(builder.Configuration.GetConnectionString("DefaultConnection"))
+                ? "appsettings" : "environment variable",
+            connectionStringLength = connectionString?.Length ?? 0,
+            canConnectToDb = canConnect
+        });
+    }
+    catch (Exception ex)
+    {
+        return Results.Ok(new
+        {
+            error = ex.Message,
+            innerError = ex.InnerException?.Message,
+            connectionStringLength = connectionString?.Length ?? 0
+        });
+    }
+});
+
 app.MapGet("/error", () => Results.Problem("An internal error occurred"));
 
 app.UseAuthentication(); // must come before Authorization
