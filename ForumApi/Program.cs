@@ -19,7 +19,7 @@ builder.Services.AddScoped<IUpVoteRepository, UpVoteRepository>();
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 if (string.IsNullOrEmpty(connectionString))
 {
-    connectionString = Environment.GetEnvironmentVariable("AZURE_SQL_CONNECTIONSTRING");
+    connectionString = builder.Configuration.GetConnectionString("AZURE_SQL_CONNECTIONSTRING");
 }
 
 builder.Services.AddDbContext<ForumContext>(options =>
