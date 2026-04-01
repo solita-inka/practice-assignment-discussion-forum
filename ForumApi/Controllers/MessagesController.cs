@@ -38,8 +38,16 @@ public class MessagesController : ControllerBase, IMessageController
     [HttpPost]
     public async Task<ActionResult<MessageResponse>> CreateMessageAsync(int topicId, [FromBody] MessageRequest request)
     {
-        var userId = User.FindFirstValue(System.Security.Claims.ClaimTypes.NameIdentifier) ?? ClaimsHelper.AnonymousUser;
-        var username = User.Identity?.Name ?? ClaimsHelper.AnonymousUser;
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (userId == null)
+        {
+            return Forbid();
+        }
+        var username = User.FindFirstValue(ClaimTypes.Name);
+        if (username == null)
+        {
+            return Forbid();
+        }
         var createdMessage = await _service.CreateMessageAsync(topicId, request.Content, userId, username);
         if(createdMessage == null)
         {
@@ -52,7 +60,11 @@ public class MessagesController : ControllerBase, IMessageController
     [HttpPut("{id}")]
     public async Task<ActionResult<bool>> ModifyMessageAsync(int id, [FromBody] MessageRequest request)
     {
-        var userId = User.FindFirstValue(System.Security.Claims.ClaimTypes.NameIdentifier) ?? ClaimsHelper.AnonymousUser;
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (userId == null)
+        {
+            return Forbid();
+        }
         var success = await _service.ModifyMessageAsync(id, request.Content, userId);
         if (success == null)
         {
@@ -69,7 +81,11 @@ public class MessagesController : ControllerBase, IMessageController
     [HttpDelete("{id}")]
     public async Task<ActionResult<bool>> DeleteMessageAsync(int id)
     {
-        var userId = User.FindFirstValue(System.Security.Claims.ClaimTypes.NameIdentifier) ?? ClaimsHelper.AnonymousUser;
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (userId == null)
+        {
+            return Forbid();
+        }
         var success = await _service.DeleteMessageAsync(id, userId);
         if (success == null)
         {
