@@ -7,6 +7,7 @@ public class ForumContext : DbContext
     {
     }
 
+    public DbSet<User> Users { get; set; }
     public DbSet<Topic> Topics { get; set; }
     public DbSet<Message> Messages { get; set; }
     public DbSet<MessageUpVote> MessageUpVotes { get; set; }

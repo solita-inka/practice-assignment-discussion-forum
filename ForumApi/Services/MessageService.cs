@@ -4,7 +4,7 @@ using ForumApi.DTOs.Messages;
 public interface IMessageService
 {
     Task<IEnumerable<MessageResponse>> GetAllMessagesByTopicIdAsync(int topicId);
-    Task<MessageResponse> CreateMessageAsync(int topicId, string content, string userId, string username);
+    Task<MessageResponse> CreateMessageAsync(int topicId, string content, string userId);
     Task<bool?> ModifyMessageAsync(int id, string content, string userId);
     Task<bool?> DeleteMessageAsync(int id, string userId);
 }
@@ -28,11 +28,11 @@ public class MessageService : IMessageService
             m.CreatedAt,
             m.EditedAt,
             m.UpvoteCount,
-            m.CreatedByUsername
+            m.CreatedByUser.Username
         )).ToList();
     }
 
-    public async Task<MessageResponse> CreateMessageAsync(int topicId, string content, string userId, string username)
+    public async Task<MessageResponse> CreateMessageAsync(int topicId, string content, string userId)
     {
         var topic = await _topicRepository.GetTopicByIdAsync(topicId);
         if (topic == null)
@@ -45,13 +45,15 @@ public class MessageService : IMessageService
             TopicId = topicId,
             Content = content,
             CreatedByUserId = userId,
-            CreatedByUsername = username,
             CreatedAt = DateTime.UtcNow,
             EditedAt = null,
             UpvoteCount = 0
         };
 
-        var createdMessage = await _messageRepository.AddMessageAsync(newMessage);  
+        var createdMessage = await _messageRepository.AddMessageAsync(newMessage);
+
+        // Re-fetch to include the User navigation property
+        createdMessage = await _messageRepository.GetMessageByIdAsync(createdMessage.Id);
 
         return new MessageResponse(
             createdMessage.Id,
@@ -59,7 +61,7 @@ public class MessageService : IMessageService
             createdMessage.CreatedAt,
             createdMessage.EditedAt,
             createdMessage.UpvoteCount,
-            createdMessage.CreatedByUsername
+            createdMessage.CreatedByUser.Username
         );
     }
 

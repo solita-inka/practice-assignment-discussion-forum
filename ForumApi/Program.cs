@@ -15,6 +15,7 @@ builder.Services.AddScoped<IUpVoteService, UpVoteService>();
 builder.Services.AddScoped<ITopicRepository, TopicRepository>();
 builder.Services.AddScoped<IMessageRepository, MessageRepository>();
 builder.Services.AddScoped<IUpVoteRepository, UpVoteRepository>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 if (string.IsNullOrEmpty(connectionString))
@@ -125,6 +126,7 @@ app.MapGet("/debug", (ForumContext db) =>
 app.MapGet("/error", () => Results.Problem("An internal error occurred"));
 
 app.UseAuthentication(); // must come before Authorization
+app.UseMiddleware<UserUpsertMiddleware>(); // upsert user from JWT
 app.UseAuthorization();
 
 app.MapControllers();

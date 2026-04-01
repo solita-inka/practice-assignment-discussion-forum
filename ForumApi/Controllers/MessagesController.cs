@@ -43,12 +43,7 @@ public class MessagesController : ControllerBase, IMessageController
         {
             return Forbid();
         }
-        var username = User.FindFirstValue(ClaimTypes.Name);
-        if (username == null)
-        {
-            return Forbid();
-        }
-        var createdMessage = await _service.CreateMessageAsync(topicId, request.Content, userId, username);
+        var createdMessage = await _service.CreateMessageAsync(topicId, request.Content, userId);
         if(createdMessage == null)
         {
             return BadRequest("Failed to create the message.");

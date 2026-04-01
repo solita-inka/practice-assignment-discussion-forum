@@ -21,12 +21,17 @@ public class MessageRepository : IMessageRepository
 
     public async Task<Message> GetMessageByIdAsync(int id)
     {
-        return await _context.Messages.FindAsync(id);
+        return await _context.Messages
+            .Include(m => m.CreatedByUser)
+            .FirstOrDefaultAsync(m => m.Id == id);
     }
 
     public async Task<IEnumerable<Message>> GetMessagesByTopicIdAsync(int topicId)
     {
-        return await _context.Messages.Where(m => m.TopicId == topicId).ToListAsync();
+        return await _context.Messages
+            .Include(m => m.CreatedByUser)
+            .Where(m => m.TopicId == topicId)
+            .ToListAsync();
     }
 
     public async Task<Message> AddMessageAsync(Message message)
