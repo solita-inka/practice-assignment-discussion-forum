@@ -19,4 +19,8 @@
     <ProjectReference Include="..\ForumApi\ForumApi.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Include="appsettings.Development.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
 </Project>

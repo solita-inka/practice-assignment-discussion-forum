@@ -1,7 +1,6 @@
 using System.Security.Claims;
 using System.Text.Encodings.Web;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 public class MockAuthHandler : AuthenticationHandler<AuthenticationSchemeOptions>
@@ -18,19 +17,20 @@ public class MockAuthHandler : AuthenticationHandler<AuthenticationSchemeOptions
 
     protected override Task<AuthenticateResult> HandleAuthenticateAsync()
     {
-        if (!Request.Headers.ContainsKey("X-Mock-Username"))
+        if (!Request.Headers.ContainsKey("X-Mock-UserId"))
         {
             return Task.FromResult(AuthenticateResult.Fail("Missing header"));
         }
 
+        var userId =Request.Headers["X-Mock-UserId"].ToString();
         var username = Request.Headers["X-Mock-Username"].ToString();
         var role = Request.Headers["X-Mock-Role"].ToString() ?? "User";
-        var userId =Request.Headers["X-Mock-UserId"].ToString();
+
 
         var claims = new[]
         {
-            new Claim(ClaimTypes.Name, username),
             new Claim(ClaimTypes.NameIdentifier, userId),
+            new Claim(ClaimTypes.Name, username),
             new Claim(ClaimTypes.Role, role)
         };
 

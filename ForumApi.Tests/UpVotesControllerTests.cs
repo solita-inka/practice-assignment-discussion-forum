@@ -65,14 +65,14 @@ public class UpVotesControllerTests : IClassFixture<ForumApiFactory>
     }
 
     [Fact]
-    public async Task DeleteUpvote_ReturnsBadRequest_WhenNotUpvoted()
+    public async Task DeleteUpvote_ReturnsNotFound_WhenNotUpvoted()
     {
         var client = _factory.CreateAuthenticatedClient("1", "alice", "Admin");
         var (_, messageId) = await CreateTopicAndMessage(client);
 
         var response = await client.DeleteAsync($"/api/messages/{messageId}/upvotes");
 
-        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
 
     [Fact]
@@ -117,7 +117,7 @@ public class UpVotesControllerTests : IClassFixture<ForumApiFactory>
     }
 
     [Fact]
-    public async Task DeleteUpvote_ReturnsBadRequest_WhenDifferentUser()
+    public async Task DeleteUpvote_ReturnsForbidden_WhenDifferentUser()
     {
         var client1 = _factory.CreateAuthenticatedClient("20", "userA", "Admin");
         var (_, messageId) = await CreateTopicAndMessage(client1);
@@ -129,7 +129,7 @@ public class UpVotesControllerTests : IClassFixture<ForumApiFactory>
         var client2 = _factory.CreateAuthenticatedClient("21", "userB", "Admin");
         var response = await client2.DeleteAsync($"/api/messages/{messageId}/upvotes");
 
-        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
     }
 
     [Fact]

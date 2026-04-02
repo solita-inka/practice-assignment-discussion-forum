@@ -5,7 +5,7 @@ namespace ForumApi.Services;
 public interface IUpVoteService
 {
     Task<bool> UpVoteAsync(int messageId, string userId);
-    Task<bool> DeleteUpVoteAsync(int messageId, string userId);
+    Task<DeleteUpVoteResult> DeleteUpVoteAsync(int messageId, string userId);
 }
 
 public class UpVoteService : IUpVoteService
@@ -34,15 +34,9 @@ public class UpVoteService : IUpVoteService
         return true;
     }
 
-    public async Task<bool> DeleteUpVoteAsync(int messageId, string userId)
+    public async Task<DeleteUpVoteResult> DeleteUpVoteAsync(int messageId, string userId)
     {
-        var success = await _upVoteRepository.DeleteUpVoteAsync(messageId, userId);
-        if (!success)
-        {
-            return false;
-        }
-
-        return true;
+        return await _upVoteRepository.DeleteUpVoteAsync(messageId, userId);
     }
 
 }

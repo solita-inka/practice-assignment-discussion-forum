@@ -10,8 +10,43 @@ on:
   workflow_dispatch:
 
 jobs:
+  test:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up .NET Core
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.x'
+
+      - name: Start SQL Server container
+        run: docker compose -f ForumApi.Tests/docker-compose.yaml up -d
+
+      - name: Wait for SQL Server to be ready
+        run: |
+          for i in $(seq 1 30); do
+            if docker exec forum-sql /opt/mssql-tools18/bin/sqlcmd -C -S localhost -U sa -P 'Forum_Password123!' -Q "SELECT 1" &>/dev/null; then
+              echo "SQL Server is ready."
+              break
+            fi
+            echo "Attempt $i/30..."
+            sleep 2
+          done
+
+      - name: Run tests
+        run: dotnet test ForumApi.Tests/ForumApi.Tests.csproj --verbosity normal
+
+      - name: Stop SQL Server container
+        if: always()
+        run: docker compose -f ForumApi.Tests/docker-compose.yaml down -v
+
   build:
     runs-on: windows-latest
+    needs: test
     permissions:
       contents: read #This is required for actions/checkout
 

@@ -21,18 +21,6 @@ X-Mock-Role: Admin
 {
   "title": "Sports"
 }
-
-###
-POST {{ForumApi_HostAddress}}/api/topics
-Content-Type: application/json
-X-Mock-UserId: {{normalUserId}}
-X-Mock-Username: {{normalUsername}}
-X-Mock-Role: User
-
-{
-  "title": "Dogs"
-}
-
 ###
 PUT {{ForumApi_HostAddress}}/api/topics/1
 Content-Type: application/json
@@ -41,31 +29,15 @@ X-Mock-Username: {{adminUsername}}
 X-Mock-Role: Admin
 
 {
-  "title": "Movies"
+  "title": "Ice hockey"
 }
 
 ###
-PUT {{ForumApi_HostAddress}}/api/topics/1
+DELETE {{ForumApi_HostAddress}}/api/topics/1
 Content-Type: application/json
 X-Mock-UserId: {{normalUserId}}
 X-Mock-Username: {{normalUsername}}
 X-Mock-Role: User
-
-{
-  "title": "Horror movies"
-}
-
-###
-DELETE {{ForumApi_HostAddress}}/api/topics/1
-X-Mock-UserId: {{normalUserId}}
-X-Mock-Username: {{normalUsername}}
-X-Mock-Role: User
-
-###
-DELETE {{ForumApi_HostAddress}}/api/topics/1
-X-Mock-UserId: {{adminUserId}}
-X-Mock-Username: {{adminUsername}}
-X-Mock-Role: Admin
 
 ###
 POST {{ForumApi_HostAddress}}/api/topics/1/messages
@@ -75,32 +47,11 @@ X-Mock-Username: {{normalUsername}}
 X-Mock-Role: User
 
 {
-  "content": "I love movies"
+  "content": "I love ice hockey!"
 }
 
 ###
-PUT {{ForumApi_HostAddress}}/api/topics/1/messages/1
-Content-Type: application/json
-X-Mock-UserId: {{normalUserId}}
-X-Mock-Username: {{normalUsername}}
-X-Mock-Role: User
 
-{
-  "content": "I hate movies"
-}
-
-###
-PUT {{ForumApi_HostAddress}}/api/topics/1/messages/1
-Content-Type: application/json
-X-Mock-UserId: {{adminUserId}}
-X-Mock-Username: {{adminUsername}}
-X-Mock-Role: Admin
-
-{
-  "content": "I love horror movies"
-}
-
-###
 GET {{ForumApi_HostAddress}}/api/topics/1/messages
 Accept: application/json
 X-Mock-UserId: {{normalUserId}}
@@ -108,23 +59,49 @@ X-Mock-Username: {{normalUsername}}
 X-Mock-Role: User
 
 ###
+PUT {{ForumApi_HostAddress}}/api/topics/1/messages/1
+Content-Type: application/json
+X-Mock-UserId: {{normalUserId}}
+X-Mock-Username: {{normalUsername}}
+X-Mock-Role: User
+
+{
+  "content": "I really love ice hockey!"
+}
+
+###
 POST {{ForumApi_HostAddress}}/api/messages/1/upvotes
-Accept: application/json
+Content-Type: application/json
+X-Mock-UserId: {{adminUserId}}
+X-Mock-Username: {{adminUsername}}
+X-Mock-Role: Admin
+
+
+###
+DELETE {{ForumApi_HostAddress}}/api/messages/1/upvotes
+Content-Type: application/json
 X-Mock-UserId: {{normalUserId}}
 X-Mock-Username: {{normalUsername}}
 X-Mock-Role: User
 
 ###
+DELETE {{ForumApi_HostAddress}}/api/messages/1/upvotes
+Content-Type: application/json
+X-Mock-UserId: {{adminUserId}}
+X-Mock-Username: {{adminUsername}}
+X-Mock-Role: Admin
 
-POST {{ForumApi_HostAddress}}/api/messages/1/upvotes
-Accept: application/json
+
+###
+DELETE {{ForumApi_HostAddress}}/api/topics/1/messages/1 
+Content-Type: application/json
 X-Mock-UserId: {{adminUserId}}
 X-Mock-Username: {{adminUsername}}
 X-Mock-Role: Admin
 
 ###
-DELETE {{ForumApi_HostAddress}}/api/messages/1/upvotes
-Accept: application/json
+DELETE {{ForumApi_HostAddress}}/api/topics/1/messages/1 
+Content-Type: application/json
 X-Mock-UserId: {{normalUserId}}
 X-Mock-Username: {{normalUsername}}
 X-Mock-Role: User

@@ -46,12 +46,13 @@ public class UpVotesController : ControllerBase, IUpVotesController
         {
             return Unauthorized();
         }
-                var success = await _upVoteService.DeleteUpVoteAsync(messageId, userId);
-        if (!success){
-            return BadRequest();
-        }
-
-        return NoContent();
+        var result = await _upVoteService.DeleteUpVoteAsync(messageId, userId);
+        return result switch
+        {
+            DeleteUpVoteResult.NotFound => NotFound(),
+            DeleteUpVoteResult.Forbidden => Forbid(),
+            _ => NoContent()
+        };
     }       
 
 }

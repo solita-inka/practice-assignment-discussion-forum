@@ -3,7 +3,14 @@ using Microsoft.EntityFrameworkCore;
 public interface IUpVoteRepository
 {
     Task<MessageUpVote?> CreateUpVoteAsync(MessageUpVote upVote);
-    Task<bool> DeleteUpVoteAsync(int messageId, string userId);
+    Task<DeleteUpVoteResult> DeleteUpVoteAsync(int messageId, string userId);
+}
+
+public enum DeleteUpVoteResult
+{
+    Success,
+    NotFound,
+    Forbidden
 }
 
 public class UpVoteRepository : IUpVoteRepository
@@ -34,12 +41,16 @@ public class UpVoteRepository : IUpVoteRepository
         return createdUpVote;
     }
 
-    public async Task<bool> DeleteUpVoteAsync(int messageId, string userId)
+    public async Task<DeleteUpVoteResult> DeleteUpVoteAsync(int messageId, string userId)
     {
         var upVote = await _context.MessageUpVotes
-            .FirstOrDefaultAsync(u => u.MessageId == messageId && u.CreatedByUserId == userId);
+            .FirstOrDefaultAsync(u => u.MessageId == messageId);
         if (upVote == null){
-            return false;
+            return DeleteUpVoteResult.NotFound;
+        }
+
+        if (upVote.CreatedByUserId != userId){
+            return DeleteUpVoteResult.Forbidden;
         }
 
         var message = await _context.Messages.FindAsync(upVote.MessageId);
@@ -50,7 +61,7 @@ public class UpVoteRepository : IUpVoteRepository
 
         _context.MessageUpVotes.Remove(upVote);
         await _context.SaveChangesAsync();
-        return true;
+        return DeleteUpVoteResult.Success;
        
     }
 }
