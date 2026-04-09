@@ -86,7 +86,7 @@ app.MapScalarApiReference();
 
 if (!app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/error");
+    app.UseDeveloperExceptionPage();
 }
 
 // Health check endpoint - no auth required
