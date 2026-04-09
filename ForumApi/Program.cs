@@ -98,7 +98,7 @@ app.MapGet("/", () => Results.Ok(new
 }));
 
 
-app.MapGet("/error", () => Results.Problem("An internal error occurred"));
+app.Map("/error", () => Results.Problem("An internal error occurred"));
 
 app.UseAuthentication(); // must come before Authorization
 app.UseMiddleware<UserUpsertMiddleware>(); // upsert user from JWT
