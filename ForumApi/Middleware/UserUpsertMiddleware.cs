@@ -14,11 +14,8 @@ public class UserUpsertMiddleware
         // Only run if the user is authenticated (has a valid JWT)
         if (context.User.Identity?.IsAuthenticated == true)
         {
-            var userId = context.User.FindFirstValue(ClaimTypes.NameIdentifier)
-                      ?? context.User.FindFirstValue("sub");
-            var username = context.User.FindFirstValue(ClaimTypes.Name)
-                       ?? context.User.FindFirstValue("name")
-                       ?? context.User.FindFirstValue("preferred_username");
+            var userId = context.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var username = context.User.FindFirstValue(ClaimTypes.Name);
 
             if (userId != null && username != null)
             {
