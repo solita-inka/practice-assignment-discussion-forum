@@ -50,6 +50,8 @@ else
         {
             options.Authority = $"{azureAdConfig["Instance"]}{azureAdConfig["TenantId"]}/v2.0";
             options.Audience = azureAdConfig["ClientId"];
+            options.MapInboundClaims = true;
+            options.TokenValidationParameters.RoleClaimType = "http://schemas.microsoft.com/ws/2008/06/identity/claims/role";
         });
 }
 
@@ -86,7 +88,7 @@ app.MapScalarApiReference();
 
 if (!app.Environment.IsDevelopment())
 {
-    app.UseDeveloperExceptionPage();
+    app.UseExceptionHandler("/error");
 }
 
 // Health check endpoint - no auth required
