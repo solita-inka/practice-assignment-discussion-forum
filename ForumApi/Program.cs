@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using ForumApi.Services;
+using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -80,11 +81,10 @@ using (var scope = app.Services.CreateScope())
 
 
 // Middleware
-if (app.Environment.IsDevelopment())
-{
-    app.MapOpenApi();
-}
-else
+app.MapOpenApi();
+app.MapScalarApiReference();
+
+if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/error");
 }
