@@ -26,6 +26,13 @@ x86/
 ## macOS
 .DS_Store
 
+## Terraform
+Infra/terraform.tfstate
+Infra/terraform.tfstate.backup
+Infra/terraform.tfvars
+Infra/.terraform/
+Infra/.terraform.lock.hcl
+
 ## HTTP files with secrets
 ForumAPI.http
 
