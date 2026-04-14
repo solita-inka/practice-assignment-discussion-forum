@@ -52,6 +52,7 @@ else
             options.Audience = azureAdConfig["ClientId"];
             options.MapInboundClaims = true;
             options.TokenValidationParameters.RoleClaimType = "http://schemas.microsoft.com/ws/2008/06/identity/claims/role";
+            options.TokenValidationParameters.NameClaimType = "name";
         });
 }
 

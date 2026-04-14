@@ -16,7 +16,7 @@ public class UserUpsertMiddleware
         {
             var userId = context.User.FindFirstValue(ClaimTypes.NameIdentifier);
             var username = context.User.FindFirstValue(ClaimTypes.Name)
-                ?? context.User.FindFirstValue("preferred_username");
+                ?? context.User.FindFirstValue("name");
 
             if (userId != null && username != null)
             {
