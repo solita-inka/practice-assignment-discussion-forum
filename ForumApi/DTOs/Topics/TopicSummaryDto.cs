@@ -5,5 +5,6 @@ public record TopicSummaryDto
     int Id,
     string Title,
     int MessageCount,
-    DateTime? LastMessageAt
+    DateTime? LastMessageAt,
+    bool IsArchived
 );

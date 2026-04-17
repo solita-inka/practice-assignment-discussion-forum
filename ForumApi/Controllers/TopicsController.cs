@@ -23,7 +23,7 @@ public class TopicsController : ControllerBase, ITopicsController
     }
     private string GetUserId() => User.FindFirstValue(ClaimTypes.NameIdentifier) ?? ClaimsHelper.AnonymousUser;
 
-    [Authorize(Roles = "User, Admin")]
+    [AllowAnonymous]
     [HttpGet]
     public async Task<ActionResult<IEnumerable<TopicSummaryDto>>> GetAll()
     {
@@ -61,6 +61,19 @@ public class TopicsController : ControllerBase, ITopicsController
     public async Task<ActionResult<TopicSummaryDto>> Modify(int id, [FromBody] TopicRequest request)
     {
         var success = await _service.ModifyAsync(id, request.Title, GetUserId());
+        if (!success)
+        {
+            return NotFound();
+        }
+
+        return NoContent();
+    }
+
+    [Authorize(Roles = "Admin")]
+    [HttpPatch("{id}/archive")]
+    public async Task<IActionResult> SetArchiveStatus(int id, [FromBody] bool isArchived)
+    {
+        var success = await _service.SetArchiveStatusAsync(id, isArchived);
         if (!success)
         {
             return NotFound();

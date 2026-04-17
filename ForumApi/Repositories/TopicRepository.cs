@@ -8,6 +8,7 @@ public interface ITopicRepository
     Task<Topic> CreateTopicAsync(Topic topic);
     Task<bool> UpdateTopicAsync(int id, string title);
     Task<bool> DeleteTopicAsync(int id);
+    Task<bool> SetArchiveStatusAsync(int id, bool isArchived);
 }
 
 public class TopicRepository : ITopicRepository
@@ -59,5 +60,17 @@ public class TopicRepository : ITopicRepository
         await _context.SaveChangesAsync();
         return true;
        
+    }
+
+    public async Task<bool> SetArchiveStatusAsync(int id, bool isArchived)
+    {
+        var topic = await _context.Topics.FindAsync(id);
+        if (topic == null)
+        {
+            return false;
+        }
+        topic.IsArchived = isArchived;
+        await _context.SaveChangesAsync();
+        return true;
     }
 }

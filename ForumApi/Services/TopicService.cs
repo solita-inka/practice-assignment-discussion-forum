@@ -7,6 +7,7 @@ public interface ITopicService
     Task<TopicSummaryDto> CreateAsync(string title, string userId);
     Task<bool> ModifyAsync(int id, string title, string userId);
     Task<bool> DeleteAsync(int id);
+    Task<bool> SetArchiveStatusAsync(int id, bool isArchived);
 }
 public class TopicService : ITopicService
 {
@@ -27,7 +28,8 @@ public class TopicService : ITopicService
             t.Messages
                 .OrderByDescending(m => m.CreatedAt)
                 .Select(m => (DateTime?)m.CreatedAt)
-                .FirstOrDefault()
+                .FirstOrDefault(),
+            t.IsArchived
         ));
     }
 
@@ -46,7 +48,8 @@ public class TopicService : ITopicService
             topic.Id,
             topic.Title,
             0, 
-            null
+            null,
+            false
         );
 
         return topicDto;
@@ -63,5 +66,10 @@ public class TopicService : ITopicService
     {
         return await _topicRepository.DeleteTopicAsync(id);
     
+    }
+
+    public async Task<bool> SetArchiveStatusAsync(int id, bool isArchived)
+    {
+        return await _topicRepository.SetArchiveStatusAsync(id, isArchived);
     }
 }

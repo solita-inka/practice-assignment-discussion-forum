@@ -22,7 +22,7 @@ public class MessagesController : ControllerBase, IMessageController
         _service = service;
     }
 
-    [Authorize(Roles = "User, Admin")]
+    [AllowAnonymous]
     [HttpGet]
     public async Task<ActionResult<IEnumerable<MessageResponse>>> GetAllMessagesByTopicId(int topicId)
     {
@@ -43,12 +43,19 @@ public class MessagesController : ControllerBase, IMessageController
         {
             return Forbid();
         }
-        var createdMessage = await _service.CreateMessageAsync(topicId, request.Content, userId);
-        if(createdMessage == null)
+        try
         {
-            return BadRequest("Failed to create the message.");
+            var createdMessage = await _service.CreateMessageAsync(topicId, request.Content, userId);
+            if(createdMessage == null)
+            {
+                return BadRequest("Failed to create the message.");
+            }
+            return CreatedAtAction(nameof(GetAllMessagesByTopicId), new { topicId }, createdMessage);
         }
-        return CreatedAtAction(nameof(GetAllMessagesByTopicId), new { topicId }, createdMessage);
+        catch (InvalidOperationException ex)
+        {
+            return Conflict(new { error = ex.Message });
+        }
     }
 
     [Authorize(Roles = "User, Admin")]

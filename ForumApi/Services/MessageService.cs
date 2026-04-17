@@ -40,6 +40,11 @@ public class MessageService : IMessageService
             return null;
         }
 
+        if (topic.IsArchived)
+        {
+            throw new InvalidOperationException("Cannot post to an archived topic.");
+        }
+
         var newMessage = new Message
         {
             TopicId = topicId,

@@ -102,13 +102,13 @@ public class TopicsControllerTests : IClassFixture<ForumApiFactory>
     }
 
     [Fact]
-    async Task GetTopics_ReturnsUnauthorized_ForUnauthenticatedUser()
+    async Task GetTopics_ReturnsOk_ForUnauthenticatedUser()
     {
         var client = _factory.CreateClient(); // No authentication
 
         var response = await client.GetAsync("/api/topics");
 
-        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
     }
 
     [Fact]
