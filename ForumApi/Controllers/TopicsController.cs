@@ -1,7 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
 using ForumApi.DTOs.Topics;
+using ForumApi.Helpers;
+using ForumApi.Services;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
+
+namespace ForumApi.Controllers;
 
 public interface ITopicsController
 {

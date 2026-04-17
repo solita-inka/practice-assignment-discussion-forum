@@ -1,5 +1,8 @@
 using ForumApi.Models;
 using ForumApi.DTOs.Messages;
+using ForumApi.Repositories;
+
+namespace ForumApi.Services;
 
 public interface IMessageService
 {

@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using ForumApi.Models;
 
+namespace ForumApi.Data;
+
 public class ForumContext : DbContext
 {
     public ForumContext(DbContextOptions<ForumContext> options) : base(options)

@@ -1,5 +1,9 @@
 using ForumApi.Models;
-using Microsoft.EntityFrameworkCore;    
+using ForumApi.Data;
+using Microsoft.EntityFrameworkCore;
+
+namespace ForumApi.Repositories;
+
 public interface IUpVoteRepository
 {
     Task<MessageUpVote?> CreateUpVoteAsync(MessageUpVote upVote);

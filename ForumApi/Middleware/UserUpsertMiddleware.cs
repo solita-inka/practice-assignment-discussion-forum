@@ -1,4 +1,7 @@
 using System.Security.Claims;
+using ForumApi.Repositories;
+
+namespace ForumApi.Middleware;
 
 public class UserUpsertMiddleware
 {

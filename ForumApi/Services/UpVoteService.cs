@@ -1,5 +1,6 @@
 // Services/UpVoteService.cs
 using ForumApi.Models;
+using ForumApi.Repositories;
 
 namespace ForumApi.Services;
 public interface IUpVoteService

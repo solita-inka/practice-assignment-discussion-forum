@@ -1,5 +1,8 @@
 using ForumApi.Models;
 using ForumApi.DTOs.Topics;
+using ForumApi.Repositories;
+
+namespace ForumApi.Services;
 
 public interface ITopicService
 {

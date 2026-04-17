@@ -1,5 +1,8 @@
 using ForumApi.Models;
+using ForumApi.Data;
 using Microsoft.EntityFrameworkCore;
+
+namespace ForumApi.Repositories;
 
 public interface IMessageRepository
 {

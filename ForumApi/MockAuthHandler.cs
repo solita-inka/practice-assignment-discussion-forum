@@ -3,6 +3,8 @@ using System.Text.Encodings.Web;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Options;
 
+namespace ForumApi;
+
 public class MockAuthHandler : AuthenticationHandler<AuthenticationSchemeOptions>
 {
     public const string SchemeName = "Mock";

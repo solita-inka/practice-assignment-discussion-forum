@@ -1,7 +1,11 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using ForumApi;
+using ForumApi.Data;
 using ForumApi.Services;
+using ForumApi.Repositories;
+using ForumApi.Middleware;
 using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);

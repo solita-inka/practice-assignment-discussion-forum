@@ -1,10 +1,13 @@
 using Xunit;
 using ForumApi.Models;
+using ForumApi.Data;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.DependencyInjection;
 using ForumApi.Functions;
 using Microsoft.EntityFrameworkCore;
 using System.Runtime.InteropServices;
+
+namespace ForumApi.Functions.Tests;
 
 public class TopicArchiveTimerTests
 {

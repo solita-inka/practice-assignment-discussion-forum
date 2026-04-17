@@ -2,6 +2,10 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using ForumApi.Data;
+
+namespace ForumApi.Tests;
+
 public class ForumApiFactory : WebApplicationFactory<Program>
 {
     public ForumContext GetDbContext() => Services.CreateScope().ServiceProvider.GetRequiredService<ForumContext>();

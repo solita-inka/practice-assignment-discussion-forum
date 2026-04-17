@@ -4,6 +4,8 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using ForumApi.Services;
 
+namespace ForumApi.Controllers;
+
 public interface IMessageController
 {
     Task<ActionResult<IEnumerable<MessageResponse>>> GetAllMessagesByTopicId(int topicId);
