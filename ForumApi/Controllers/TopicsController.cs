@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using ForumApi.DTOs.Pagination;
 using ForumApi.DTOs.Topics;
 using ForumApi.Helpers;
 using ForumApi.Services;
@@ -9,7 +10,7 @@ namespace ForumApi.Controllers;
 
 public interface ITopicsController
 {
-    Task<ActionResult<IEnumerable<TopicSummaryDto>>> GetAll();
+    Task<ActionResult<PagedResponse<TopicSummaryDto>>> GetAll(int page, int pageSize, bool archived = false);
     Task<ActionResult<TopicSummaryDto>> Create([FromBody] TopicRequest request);
     Task<IActionResult> Delete(int id);
     Task<ActionResult<TopicSummaryDto>> Modify(int id, [FromBody] TopicRequest request);
@@ -29,9 +30,11 @@ public class TopicsController : ControllerBase, ITopicsController
 
     [AllowAnonymous]
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<TopicSummaryDto>>> GetAll()
+    public async Task<ActionResult<PagedResponse<TopicSummaryDto>>> GetAll(int page = 1, int pageSize = 10, bool archived = false)
     {
-        var topics = await _service.GetAllAsync();
+        page = Math.Max(1, page);
+        pageSize = Math.Clamp(pageSize, 1, 100);
+        var topics = await _service.GetAllAsync(page, pageSize, archived);
         return Ok(topics);
     }
 

@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 using ForumApi.Services;
-using ForumApi.Repositories;
 
 namespace ForumApi.Controllers;
 
@@ -53,7 +52,6 @@ public class UpVotesController : ControllerBase, IUpVotesController
         return result switch
         {
             DeleteUpVoteResult.NotFound => NotFound(),
-            DeleteUpVoteResult.Forbidden => Forbid(),
             _ => NoContent()
         };
     }       

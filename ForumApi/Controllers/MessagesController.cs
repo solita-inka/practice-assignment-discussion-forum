@@ -40,10 +40,14 @@ public class MessagesController : ControllerBase, IMessageController
     [HttpPost]
     public async Task<ActionResult<MessageResponse>> CreateMessageAsync(int topicId, [FromBody] MessageRequest request)
     {
+        if (string.IsNullOrWhiteSpace(request.Content))
+        {
+            return BadRequest("Message content is required.");
+        }
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (userId == null)
         {
-            return Forbid();
+            return Unauthorized();
         }
         try
         {
@@ -67,18 +71,15 @@ public class MessagesController : ControllerBase, IMessageController
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (userId == null)
         {
-            return Forbid();
+            return Unauthorized();
         }
-        var success = await _service.ModifyMessageAsync(id, request.Content, userId);
-        if (success == null)
+        var result = await _service.ModifyMessageAsync(id, request.Content, userId);
+        return result switch
         {
-            return NotFound();
-        }
-        if (success == false)
-        {
-            return Forbid();
-        }
-        return NoContent();
+            MessageOperationResult.NotFound => NotFound(),
+            MessageOperationResult.Forbidden => Forbid(),
+            _ => NoContent()
+        };
     }
 
     [Authorize(Roles = "User, Admin")]
@@ -88,17 +89,14 @@ public class MessagesController : ControllerBase, IMessageController
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (userId == null)
         {
-            return Forbid();
+            return Unauthorized();
         }
-        var success = await _service.DeleteMessageAsync(id, userId);
-        if (success == null)
+        var result = await _service.DeleteMessageAsync(id, userId);
+        return result switch
         {
-            return NotFound();
-        }
-        if (success == false)
-        {
-            return Forbid();
-        }
-        return NoContent();
+            MessageOperationResult.NotFound => NotFound(),
+            MessageOperationResult.Forbidden => Forbid(),
+            _ => NoContent()
+        };
     }
 }

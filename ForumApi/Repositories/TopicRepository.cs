@@ -6,7 +6,7 @@ namespace ForumApi.Repositories;
 
 public interface ITopicRepository
 {
-    Task<IEnumerable<Topic>> GetAllTopicsAsync();
+    Task<(IEnumerable<Topic> Items, int TotalCount)> GetAllTopicsAsync(int page, int pageSize, bool archived = false);
     Task<Topic> GetTopicByIdAsync(int id);
     Task<Topic> CreateTopicAsync(Topic topic);
     Task<bool> UpdateTopicAsync(int id, string title);
@@ -23,9 +23,23 @@ public class TopicRepository : ITopicRepository
         _context = context;
     }
 
-    public async Task<IEnumerable<Topic>> GetAllTopicsAsync()
+    public async Task<(IEnumerable<Topic> Items, int TotalCount)> GetAllTopicsAsync(int page, int pageSize, bool archived = false)
     {
-        return await _context.Topics.Include(t => t.Messages).ToListAsync();
+        var query = _context.Topics
+            .Where(t => t.IsArchived == archived);
+
+        var totalCount = await query.CountAsync();
+
+        var items = await query
+            .Include(t => t.Messages)
+            .OrderByDescending(t => t.Messages
+                .Select(m => (DateTime?)m.CreatedAt)
+                .Max() ?? t.CreatedAt)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+
+        return (items, totalCount);
     }
 
     public async Task<Topic> GetTopicByIdAsync(int id)

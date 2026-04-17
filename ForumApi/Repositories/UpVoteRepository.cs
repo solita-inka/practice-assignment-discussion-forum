@@ -1,5 +1,6 @@
 using ForumApi.Models;
 using ForumApi.Data;
+using ForumApi.Services;
 using Microsoft.EntityFrameworkCore;
 
 namespace ForumApi.Repositories;
@@ -8,13 +9,6 @@ public interface IUpVoteRepository
 {
     Task<MessageUpVote?> CreateUpVoteAsync(MessageUpVote upVote);
     Task<DeleteUpVoteResult> DeleteUpVoteAsync(int messageId, string userId);
-}
-
-public enum DeleteUpVoteResult
-{
-    Success,
-    NotFound,
-    Forbidden
 }
 
 public class UpVoteRepository : IUpVoteRepository
@@ -37,7 +31,6 @@ public class UpVoteRepository : IUpVoteRepository
             return null;
         }                    
         _context.MessageUpVotes.Add(upVote);
-        message.UpvoteCount++;
         await _context.SaveChangesAsync();
         var createdUpVote = await _context.MessageUpVotes
             .Include(u => u.Message)
@@ -48,19 +41,9 @@ public class UpVoteRepository : IUpVoteRepository
     public async Task<DeleteUpVoteResult> DeleteUpVoteAsync(int messageId, string userId)
     {
         var upVote = await _context.MessageUpVotes
-            .FirstOrDefaultAsync(u => u.MessageId == messageId);
+            .FirstOrDefaultAsync(u => u.MessageId == messageId && u.CreatedByUserId == userId);
         if (upVote == null){
             return DeleteUpVoteResult.NotFound;
-        }
-
-        if (upVote.CreatedByUserId != userId){
-            return DeleteUpVoteResult.Forbidden;
-        }
-
-        var message = await _context.Messages.FindAsync(upVote.MessageId);
-        if (message != null)
-        {
-            message.UpvoteCount--;
         }
 
         _context.MessageUpVotes.Remove(upVote);

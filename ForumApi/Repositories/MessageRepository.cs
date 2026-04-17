@@ -26,6 +26,7 @@ public class MessageRepository : IMessageRepository
     {
         return await _context.Messages
             .Include(m => m.CreatedByUser)
+            .Include(m => m.Upvotes)
             .FirstOrDefaultAsync(m => m.Id == id);
     }
 
@@ -33,7 +34,9 @@ public class MessageRepository : IMessageRepository
     {
         return await _context.Messages
             .Include(m => m.CreatedByUser)
+            .Include(m => m.Upvotes)
             .Where(m => m.TopicId == topicId)
+            .OrderBy(m => m.CreatedAt)
             .ToListAsync();
     }
 
@@ -49,7 +52,8 @@ public class MessageRepository : IMessageRepository
         var messageToUpdate = await _context.Messages.FindAsync(message.Id);
         if (messageToUpdate == null)
             return false;
-        _context.Entry(messageToUpdate).State = EntityState.Modified;
+        messageToUpdate.Content = message.Content;
+        messageToUpdate.EditedAt = DateTime.UtcNow;
         await _context.SaveChangesAsync();
         return true;
     }

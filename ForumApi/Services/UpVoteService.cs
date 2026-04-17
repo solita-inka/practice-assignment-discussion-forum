@@ -3,6 +3,13 @@ using ForumApi.Models;
 using ForumApi.Repositories;
 
 namespace ForumApi.Services;
+
+public enum DeleteUpVoteResult
+{
+    Success,
+    NotFound
+}
+
 public interface IUpVoteService
 {
     Task<bool> UpVoteAsync(int messageId, string userId);

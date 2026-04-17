@@ -68,15 +68,13 @@ var app = builder.Build();
 
 
 // ✅ DB init AFTER app is built
-using (var scope = app.Services.CreateScope())
+if (app.Environment.IsDevelopment())
 {
+    using var scope = app.Services.CreateScope();
     var db = scope.ServiceProvider.GetRequiredService<ForumContext>();
     try
     {
-        if (app.Environment.IsDevelopment())
-        {
-            db.Database.EnsureDeleted();
-        }
+        db.Database.EnsureDeleted();
         db.Database.EnsureCreated();
     }
     catch (Exception ex)

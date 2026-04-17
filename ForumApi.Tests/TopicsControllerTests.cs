@@ -2,6 +2,7 @@ using System.Net;
 using System.Net.Http.Json;
 using Microsoft.EntityFrameworkCore;
 using Xunit;
+using ForumApi.DTOs.Pagination;
 using ForumApi.DTOs.Topics;
 
 [assembly: CollectionBehavior(DisableTestParallelization = true)]
@@ -26,11 +27,12 @@ public class TopicsControllerTests : IClassFixture<ForumApiFactory>
     {
         var client = CreateUserClient();
 
-        var response = await client.GetAsync("/api/topics");
+        var response = await client.GetAsync("/api/topics?page=1&pageSize=10");
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        var topics = await response.Content.ReadFromJsonAsync<List<TopicSummaryDto>>();
-        Assert.NotNull(topics);
+        var result = await response.Content.ReadFromJsonAsync<PagedResponse<TopicSummaryDto>>();
+        Assert.NotNull(result);
+        Assert.NotNull(result.Items);
     }
 
     [Fact]
@@ -75,6 +77,10 @@ public class TopicsControllerTests : IClassFixture<ForumApiFactory>
     public async Task DeleteTopic_ReturnsNotFound()
     {
         var client = CreateAdminClient();
+
+        var response = await client.DeleteAsync("/api/topics/9999");
+
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
 
     [Fact]
@@ -193,5 +199,159 @@ public class TopicsControllerTests : IClassFixture<ForumApiFactory>
         var topicInDb = await db.Topics.FirstOrDefaultAsync(t => t.Id == createdTopic.Id);
 
         Assert.Null(topicInDb);
-    }   
+    }
+
+    [Fact]
+    async Task GetTopics_ReturnsPaginatedResponse()
+    {
+        var client = CreateAdminClient();
+        // Create 3 topics
+        for (int i = 1; i <= 3; i++)
+        {
+            await client.PostAsJsonAsync("/api/topics", new TopicRequest($"Pagination Topic {i}"));
+        }
+
+        var response = await client.GetAsync("/api/topics?page=1&pageSize=2");
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var result = await response.Content.ReadFromJsonAsync<PagedResponse<TopicSummaryDto>>();
+        Assert.NotNull(result);
+        Assert.True(result.Items.Count() <= 2);
+        Assert.True(result.TotalCount >= 3);
+        Assert.Equal(1, result.PageNumber);
+        Assert.Equal(2, result.PageSize);
+    }
+
+    [Fact]
+    async Task GetTopics_ArchivedTopicsNotReturnedByDefault()
+    {
+        var client = CreateAdminClient();
+        var createResponse = await client.PostAsJsonAsync("/api/topics", new TopicRequest("Archived Topic Test"));
+        var created = await createResponse.Content.ReadFromJsonAsync<TopicSummaryDto>();
+        await client.PatchAsJsonAsync($"/api/topics/{created.Id}/archive", true);
+
+        var response = await client.GetAsync("/api/topics?page=1&pageSize=100");
+        var result = await response.Content.ReadFromJsonAsync<PagedResponse<TopicSummaryDto>>();
+
+        Assert.DoesNotContain(result.Items, t => t.Id == created.Id);
+    }
+
+    [Fact]
+    async Task GetTopics_ArchivedTrue_ReturnsOnlyArchivedTopics()
+    {
+        var client = CreateAdminClient();
+        // Create and archive a topic
+        var createResponse = await client.PostAsJsonAsync("/api/topics", new TopicRequest("Archived Only Topic"));
+        var created = await createResponse.Content.ReadFromJsonAsync<TopicSummaryDto>();
+        await client.PatchAsJsonAsync($"/api/topics/{created.Id}/archive", true);
+
+        var response = await client.GetAsync("/api/topics?page=1&pageSize=100&archived=true");
+        var result = await response.Content.ReadFromJsonAsync<PagedResponse<TopicSummaryDto>>();
+
+        Assert.Contains(result.Items, t => t.Id == created.Id);
+        Assert.All(result.Items, t => Assert.True(t.IsArchived));
+    }
+
+    [Fact]
+    async Task ArchiveTopic_SetsIsArchived()
+    {
+        var client = CreateAdminClient();
+        var createResponse = await client.PostAsJsonAsync("/api/topics", new TopicRequest("Topic To Archive"));
+        var created = await createResponse.Content.ReadFromJsonAsync<TopicSummaryDto>();
+
+        var archiveResponse = await client.PatchAsJsonAsync($"/api/topics/{created.Id}/archive", true);
+
+        Assert.Equal(HttpStatusCode.NoContent, archiveResponse.StatusCode);
+
+        var db = _factory.GetDbContext();
+        var topicInDb = await db.Topics.FirstOrDefaultAsync(t => t.Id == created.Id);
+        Assert.True(topicInDb.IsArchived);
+    }
+
+    [Fact]
+    async Task ArchiveTopic_NonAdmin_ReturnsForbidden()
+    {
+        var client = CreateUserClient();
+
+        var response = await client.PatchAsJsonAsync("/api/topics/1/archive", true);
+
+        Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+    }
+
+    [Fact]
+    async Task GetTopics_ReturnsTopicsOrderedByNewestMessage()
+    {
+        var admin = CreateAdminClient();
+        var user = CreateUserClient();
+
+        // Create two topics
+        var topicOld = await (await admin.PostAsJsonAsync("/api/topics", new TopicRequest("Topic with Older Messages"))).Content.ReadFromJsonAsync<TopicSummaryDto>();
+        var topicNew = await (await admin.PostAsJsonAsync("/api/topics", new TopicRequest("Topic with Newer Messages"))).Content.ReadFromJsonAsync<TopicSummaryDto>();
+
+        await user.PostAsJsonAsync($"/api/topics/{topicOld.Id}/messages", new { Content = "Old message" });
+
+        await user.PostAsJsonAsync($"/api/topics/{topicNew.Id}/messages", new { Content = "New message" });
+
+        var response = await admin.GetAsync("/api/topics?page=1&pageSize=100");
+        var result = await response.Content.ReadFromJsonAsync<PagedResponse<TopicSummaryDto>>();
+
+        var topics = result.Items.ToList();
+        var oldIndex = topics.FindIndex(t => t.Id == topicOld.Id);
+        var newIndex = topics.FindIndex(t => t.Id == topicNew.Id);
+
+        Assert.True(newIndex < oldIndex, "Topic with newest message should appear before topic with older message");
+    }
+
+    [Fact]
+    async Task GetTopics_DefaultsPagination_WhenNoParamsProvided()
+    {
+        var client = CreateUserClient();
+
+        var response = await client.GetAsync("/api/topics");
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var result = await response.Content.ReadFromJsonAsync<PagedResponse<TopicSummaryDto>>();
+        Assert.NotNull(result);
+        Assert.Equal(1, result.PageNumber);
+        Assert.Equal(10, result.PageSize);
+    }
+
+    [Fact]
+    async Task GetTopics_ClampsNegativePage()
+    {
+        var client = CreateUserClient();
+
+        var response = await client.GetAsync("/api/topics?page=-5&pageSize=10");
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var result = await response.Content.ReadFromJsonAsync<PagedResponse<TopicSummaryDto>>();
+        Assert.NotNull(result);
+        Assert.Equal(1, result.PageNumber);
+    }
+
+    [Fact]
+    async Task GetTopics_ClampsExcessivePageSize()
+    {
+        var client = CreateUserClient();
+
+        var response = await client.GetAsync("/api/topics?page=1&pageSize=5000");
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var result = await response.Content.ReadFromJsonAsync<PagedResponse<TopicSummaryDto>>();
+        Assert.NotNull(result);
+        Assert.Equal(100, result.PageSize);
+    }
+
+    [Fact]
+    async Task GetTopics_ClampsZeroPageSize()
+    {
+        var client = CreateUserClient();
+
+        var response = await client.GetAsync("/api/topics?page=1&pageSize=0");
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var result = await response.Content.ReadFromJsonAsync<PagedResponse<TopicSummaryDto>>();
+        Assert.NotNull(result);
+        Assert.Equal(1, result.PageSize);
+    }
 }

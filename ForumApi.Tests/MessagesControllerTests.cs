@@ -225,4 +225,43 @@ public class MessagesControllerTests : IClassFixture<ForumApiFactory>
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
 
+    [Fact]
+    public async Task GetMessages_ReturnsMessagesOrderedByDate()
+    {
+        var admin = CreateAdminClient();
+        var topic = await CreateTopicAsync(admin, "Topic for Order Test");
+
+        var client = CreateUserClient();
+        await client.PostAsJsonAsync($"/api/topics/{topic.Id}/messages", new { Content = "First message" });
+        await client.PostAsJsonAsync($"/api/topics/{topic.Id}/messages", new { Content = "Second message" });
+        await client.PostAsJsonAsync($"/api/topics/{topic.Id}/messages", new { Content = "Third message" });
+
+        var response = await client.GetAsync($"/api/topics/{topic.Id}/messages");
+        var messages = await response.Content.ReadFromJsonAsync<List<MessageResponse>>();
+
+        Assert.NotNull(messages);
+        Assert.Equal(3, messages.Count);
+        Assert.True(messages[0].CreatedAt <= messages[1].CreatedAt);
+        Assert.True(messages[1].CreatedAt <= messages[2].CreatedAt);
+        Assert.Equal("First message", messages[0].Content);
+        Assert.Equal("Third message", messages[2].Content);
+    }
+
+    [Fact]
+    public async Task CreateMessage_ReturnsConflict_WhenTopicIsArchived()
+    {
+        var admin = CreateAdminClient();
+        var topic = await CreateTopicAsync(admin, "Archived Topic for Message Test");
+
+        // Archive the topic
+        await admin.PatchAsJsonAsync($"/api/topics/{topic.Id}/archive", true);
+
+        // Try to post a message to the archived topic
+        var client = CreateUserClient();
+        var messageRequest = new { Content = "Should not be allowed" };
+        var response = await client.PostAsJsonAsync($"/api/topics/{topic.Id}/messages", messageRequest);
+
+        Assert.Equal(HttpStatusCode.Conflict, response.StatusCode);
+    }
+
 }

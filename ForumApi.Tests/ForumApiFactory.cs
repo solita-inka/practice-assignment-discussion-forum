@@ -8,7 +8,23 @@ namespace ForumApi.Tests;
 
 public class ForumApiFactory : WebApplicationFactory<Program>
 {
-    public ForumContext GetDbContext() => Services.CreateScope().ServiceProvider.GetRequiredService<ForumContext>();
+    private readonly List<IServiceScope> _scopes = new();
+
+    public ForumContext GetDbContext()
+    {
+        var scope = Services.CreateScope();
+        _scopes.Add(scope);
+        return scope.ServiceProvider.GetRequiredService<ForumContext>();
+    }
+
+    protected override void Dispose(bool disposing)
+    {
+        foreach (var scope in _scopes)
+            scope.Dispose();
+        _scopes.Clear();
+        base.Dispose(disposing);
+    }
+
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         // Ensure "Development" environment is used so MockAuth is active

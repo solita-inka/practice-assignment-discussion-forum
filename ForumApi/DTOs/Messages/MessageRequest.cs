@@ -1,5 +1,7 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace ForumApi.DTOs.Messages;
 public record MessageRequest
 (
-    string Content
+    [StringLength(4000)] string Content
 );

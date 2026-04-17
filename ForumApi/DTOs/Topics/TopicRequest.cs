@@ -1,6 +1,8 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace ForumApi.DTOs.Topics;
 
 public record TopicRequest
 (
-    string Title
+    [StringLength(500)] string Title
 );

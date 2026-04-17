@@ -1,25 +1,35 @@
 using ForumApi.Models;
 using ForumApi.DTOs.Messages;
 using ForumApi.Repositories;
+using Microsoft.Extensions.Logging;
 
 namespace ForumApi.Services;
+
+public enum MessageOperationResult
+{
+    Success,
+    NotFound,
+    Forbidden
+}
 
 public interface IMessageService
 {
     Task<IEnumerable<MessageResponse>> GetAllMessagesByTopicIdAsync(int topicId);
     Task<MessageResponse> CreateMessageAsync(int topicId, string content, string userId);
-    Task<bool?> ModifyMessageAsync(int id, string content, string userId);
-    Task<bool?> DeleteMessageAsync(int id, string userId);
+    Task<MessageOperationResult> ModifyMessageAsync(int id, string content, string userId);
+    Task<MessageOperationResult> DeleteMessageAsync(int id, string userId);
 }
 public class MessageService : IMessageService
 {
     private readonly IMessageRepository _messageRepository;
     private readonly ITopicRepository _topicRepository;
+    private readonly ILogger<MessageService> _logger;
 
-    public MessageService(IMessageRepository messageRepository, ITopicRepository topicRepository)
+    public MessageService(IMessageRepository messageRepository, ITopicRepository topicRepository, ILogger<MessageService> logger)
     {
         _messageRepository = messageRepository;
         _topicRepository = topicRepository;
+        _logger = logger;
     }
 
     public async Task<IEnumerable<MessageResponse>> GetAllMessagesByTopicIdAsync(int topicId)
@@ -30,7 +40,7 @@ public class MessageService : IMessageService
             m.Content,
             m.CreatedAt,
             m.EditedAt,
-            m.UpvoteCount,
+            m.Upvotes.Count,
             m.CreatedByUser.Username
         )).ToList();
     }
@@ -45,6 +55,7 @@ public class MessageService : IMessageService
 
         if (topic.IsArchived)
         {
+            _logger.LogWarning("Attempt to post to archived topic {TopicId} by user {UserId}", topicId, userId);
             throw new InvalidOperationException("Cannot post to an archived topic.");
         }
 
@@ -54,13 +65,12 @@ public class MessageService : IMessageService
             Content = content,
             CreatedByUserId = userId,
             CreatedAt = DateTime.UtcNow,
-            EditedAt = null,
-            UpvoteCount = 0
+            EditedAt = null
         };
 
         var createdMessage = await _messageRepository.AddMessageAsync(newMessage);
 
-        // Re-fetch to include the User navigation property
+        // Re-fetch to include the User and Upvotes navigation properties
         createdMessage = await _messageRepository.GetMessageByIdAsync(createdMessage.Id);
 
         return new MessageResponse(
@@ -68,48 +78,50 @@ public class MessageService : IMessageService
             createdMessage.Content,
             createdMessage.CreatedAt,
             createdMessage.EditedAt,
-            createdMessage.UpvoteCount,
+            createdMessage.Upvotes.Count,
             createdMessage.CreatedByUser.Username
         );
     }
 
-    public async Task<bool?> ModifyMessageAsync(int id, string content, string userId)
+    public async Task<MessageOperationResult> ModifyMessageAsync(int id, string content, string userId)
     {
         var message = await _messageRepository.GetMessageByIdAsync(id);
         if (message == null)
         {
-            return null;
+            return MessageOperationResult.NotFound;
         }
         if (message.CreatedByUserId != userId)
         {
-            return false;
+            _logger.LogWarning("User {UserId} attempted to modify message {MessageId} owned by {OwnerId}", userId, id, message.CreatedByUserId);
+            return MessageOperationResult.Forbidden;
         }
         message.Content = content;
         message.EditedAt = DateTime.UtcNow;
         var success = await _messageRepository.UpdateMessageAsync(message);
         if (!success) {
-            return false;
+            return MessageOperationResult.NotFound;
         }
-        return true;
+        return MessageOperationResult.Success;
     }
 
-    public async Task<bool?> DeleteMessageAsync(int id, string userId)
+    public async Task<MessageOperationResult> DeleteMessageAsync(int id, string userId)
     {
         var message = await _messageRepository.GetMessageByIdAsync(id);
         if (message == null)
         {
-            return null;
+            return MessageOperationResult.NotFound;
         }
         if (message.CreatedByUserId != userId)
         {
-            return false;
+            _logger.LogWarning("User {UserId} attempted to delete message {MessageId} owned by {OwnerId}", userId, id, message.CreatedByUserId);
+            return MessageOperationResult.Forbidden;
         }
         var success = await _messageRepository.DeleteMessageAsync(id);
         if (!success)
         {
-            return null;
+            return MessageOperationResult.NotFound;
         }
 
-        return true;
+        return MessageOperationResult.Success;
     }
 }
