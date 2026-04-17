@@ -24,7 +24,7 @@ jobs:
           dotnet-version: '10.x'
 
       - name: Start SQL Server container
-        run: docker compose -f ForumApi.Tests/docker-compose.yaml up -d
+        run: docker compose -f docker-compose.yaml up -d
 
       - name: Wait for SQL Server to be ready
         run: |
@@ -45,7 +45,7 @@ jobs:
 
       - name: Stop SQL Server container
         if: always()
-        run: docker compose -f ForumApi.Tests/docker-compose.yaml down -v
+        run: docker compose -f docker-compose.yaml down -v
 
   build:
     runs-on: windows-latest

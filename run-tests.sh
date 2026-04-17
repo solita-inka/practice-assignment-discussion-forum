@@ -24,8 +24,11 @@ for i in $(seq 1 30); do
 done
 
 # 3. Run tests
-echo "Running tests..."
-dotnet test "$SCRIPT_DIR/ForumApi.Tests.csproj" --verbosity normal
+echo "Running API tests..."
+dotnet test "$SCRIPT_DIR/ForumApi.Tests/ForumApi.Tests.csproj" --verbosity normal
+
+echo "Running Function tests..."
+dotnet test "$SCRIPT_DIR/ForumApi.Functions.Tests/ForumApi.Functions.Tests.csproj" --verbosity normal
 
 # 4. Cleanup
 echo "Stopping SQL Server container..."

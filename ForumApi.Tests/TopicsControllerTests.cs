@@ -112,14 +112,14 @@ public class TopicsControllerTests : IClassFixture<ForumApiFactory>
     }
 
     [Fact]
-    async Task CreateTopic_ReturnsUnauthorized_ForNonAdminUser()
+    async Task CreateTopic_ReturnsCreated_ForNonAdminUser()
     {
         var client = CreateUserClient();
-        var request = new TopicRequest("New Test Topic");
+        var request = new TopicRequest("User Created Topic");
 
         var response = await client.PostAsJsonAsync("/api/topics", request);
 
-        Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
     }
 
     [Fact]

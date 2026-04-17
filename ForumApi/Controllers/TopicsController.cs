@@ -35,7 +35,7 @@ public class TopicsController : ControllerBase, ITopicsController
         return Ok(topics);
     }
 
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "User, Admin")]
     [HttpPost]
     public async Task<ActionResult<TopicSummaryDto>> Create([FromBody] TopicRequest request)
     {
