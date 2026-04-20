@@ -24,3 +24,13 @@ variable "sql_admin_password" {
   type        = string
   sensitive   = true
 }
+
+variable "app_service_plan_name" {
+  description = "Name of the App Service Plan"
+  type        = string
+}
+
+variable "storage_account_name" {
+  description = "Name of the storage account for the function app"
+  type        = string
+}

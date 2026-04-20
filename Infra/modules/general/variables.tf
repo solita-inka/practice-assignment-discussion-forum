@@ -11,3 +11,8 @@ variable "sql_connection_string" {
   type        = string
   sensitive   = true
 }
+
+variable "app_service_plan_name" {
+  description = "Name of the App Service Plan"
+  type        = string
+}

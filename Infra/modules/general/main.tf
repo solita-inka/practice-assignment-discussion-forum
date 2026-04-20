@@ -1,5 +1,5 @@
 resource "azurerm_service_plan" "app_service_plan" {
-  name                = "ASP-rg-inkan-forum-app"
+  name                = var.app_service_plan_name
   resource_group_name = var.resource_group_name
   location            = var.location
   os_type             = "Windows"

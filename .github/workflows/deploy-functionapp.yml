@@ -1,0 +1,49 @@
+name: Build and deploy Azure Function App
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up .NET Core
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.x'
+
+      - name: Build the Azure Function App
+        run: dotnet build ForumApi.Functions/ForumApi.Functions.csproj --configuration Release
+
+      - name: Publish the Azure Function App
+        run: dotnet publish ForumApi.Functions/ForumApi.Functions.csproj -c Release -o "${{ env.DOTNET_ROOT }}/functionapp"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: function-app
+          path: ${{ env.DOTNET_ROOT }}/functionapp
+
+  deploy:
+    needs: build
+    runs-on: windows-latest
+
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: function-app
+
+      - name: Deploy to Azure Function App
+        uses: azure/functions-action@v1
+        with:
+          app-name: 'forum-function-app-archive-timer'
+          package: .
+          publish-profile: ${{ secrets.AZURE_FUNCTIONAPP_PUBLISH_PROFILE }}
