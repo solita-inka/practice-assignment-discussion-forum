@@ -90,7 +90,7 @@ else
     var db = scope.ServiceProvider.GetRequiredService<ForumContext>();
     try
     {
-        db.Database.Migrate();
+        await db.Database.MigrateAsync();
     }
     catch (Exception ex)
     {
@@ -116,11 +116,16 @@ app.MapGet("/", () => Results.Ok(new
     status = "running",
     environment = app.Environment.EnvironmentName,
     hasConnectionString = !string.IsNullOrEmpty(connectionString),
+    connectionStringStart = connectionString?[..Math.Min(30, connectionString.Length)] ?? "NULL",
     dbError = dbInitError
 }));
 
 
-app.Map("/error", () => Results.Problem("An internal error occurred"));
+app.Map("/error", (HttpContext context) =>
+{
+    var error = context.Features.Get<Microsoft.AspNetCore.Diagnostics.IExceptionHandlerFeature>();
+    return Results.Problem(detail: error?.Error?.ToString(), title: "An internal error occurred");
+});
 
 app.UseAuthentication(); // must come before Authorization
 app.UseMiddleware<UserUpsertMiddleware>(); // upsert user from JWT
