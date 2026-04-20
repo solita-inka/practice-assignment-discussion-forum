@@ -13,6 +13,11 @@ resource "azurerm_windows_web_app" "web_app_forum" {
   service_plan_id     = azurerm_service_plan.app_service_plan.id
   https_only          = true
 
+  app_settings = {
+    ASPNETCORE_ENVIRONMENT     = "Production"
+    ASPNETCORE_DETAILED_ERRORS = "true"
+  }
+
   site_config {
     always_on = true
 

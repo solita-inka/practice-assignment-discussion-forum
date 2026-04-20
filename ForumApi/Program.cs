@@ -83,6 +83,20 @@ if (app.Environment.IsDevelopment())
         logger.LogError(ex, "Failed to initialize database");
     }
 }
+else
+{
+    using var scope = app.Services.CreateScope();
+    var db = scope.ServiceProvider.GetRequiredService<ForumContext>();
+    try
+    {
+        db.Database.Migrate();
+    }
+    catch (Exception ex)
+    {
+        var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "Failed to apply database migrations");
+    }
+}
 
 
 // Middleware
