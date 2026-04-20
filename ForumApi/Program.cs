@@ -68,6 +68,7 @@ var app = builder.Build();
 
 
 // ✅ DB init AFTER app is built
+string? dbInitError = null;
 if (app.Environment.IsDevelopment())
 {
     using var scope = app.Services.CreateScope();
@@ -93,6 +94,7 @@ else
     }
     catch (Exception ex)
     {
+        dbInitError = ex.ToString();
         var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
         logger.LogError(ex, "Failed to apply database migrations");
     }
@@ -113,7 +115,8 @@ app.MapGet("/", () => Results.Ok(new
 {
     status = "running",
     environment = app.Environment.EnvironmentName,
-    hasConnectionString = !string.IsNullOrEmpty(connectionString)
+    hasConnectionString = !string.IsNullOrEmpty(connectionString),
+    dbError = dbInitError
 }));
 
 
