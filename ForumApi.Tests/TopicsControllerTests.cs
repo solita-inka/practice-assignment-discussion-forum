@@ -68,7 +68,7 @@ public class TopicsControllerTests : IClassFixture<ForumApiFactory>
         var createResponse = await client.PostAsJsonAsync("/api/topics", createRequest);
         var createdTopic = await createResponse.Content.ReadFromJsonAsync<TopicSummaryDto>();
 
-        var deleteResponse = await client.DeleteAsync($"/api/topics/{createdTopic.Id}");
+        var deleteResponse = await client.DeleteAsync($"/api/topics/{createdTopic!.Id}");
 
         Assert.Equal(HttpStatusCode.NoContent, deleteResponse.StatusCode);
     }
@@ -92,7 +92,7 @@ public class TopicsControllerTests : IClassFixture<ForumApiFactory>
         var createdTopic = await createResponse.Content.ReadFromJsonAsync<TopicSummaryDto>();
 
         var modifyRequest = new TopicRequest("Modified Title");
-        var modifyResponse = await client.PutAsJsonAsync($"/api/topics/{createdTopic.Id}", modifyRequest);
+        var modifyResponse = await client.PutAsJsonAsync($"/api/topics/{createdTopic!.Id}", modifyRequest);
 
         Assert.Equal(HttpStatusCode.NoContent, modifyResponse.StatusCode);
     }
@@ -174,7 +174,7 @@ public class TopicsControllerTests : IClassFixture<ForumApiFactory>
         var createdTopic = await createResponse.Content.ReadFromJsonAsync<TopicSummaryDto>();
 
         var modifyRequest = new TopicRequest("Modified Title in DB");
-        var modifyResponse = await client.PutAsJsonAsync($"/api/topics/{createdTopic.Id}", modifyRequest);
+        var modifyResponse = await client.PutAsJsonAsync($"/api/topics/{createdTopic!.Id}", modifyRequest);
         modifyResponse.EnsureSuccessStatusCode();
 
         var db = _factory.GetDbContext();
@@ -192,7 +192,7 @@ public class TopicsControllerTests : IClassFixture<ForumApiFactory>
         createResponse.EnsureSuccessStatusCode();
         var createdTopic = await createResponse.Content.ReadFromJsonAsync<TopicSummaryDto>();
 
-        var deleteResponse = await client.DeleteAsync($"/api/topics/{createdTopic.Id}");
+        var deleteResponse = await client.DeleteAsync($"/api/topics/{createdTopic!.Id}");
         deleteResponse.EnsureSuccessStatusCode();
 
         var db = _factory.GetDbContext();
@@ -216,7 +216,7 @@ public class TopicsControllerTests : IClassFixture<ForumApiFactory>
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var result = await response.Content.ReadFromJsonAsync<PagedResponse<TopicSummaryDto>>();
         Assert.NotNull(result);
-        Assert.True(result.Items.Count() <= 2);
+        Assert.True(result!.Items.Count() <= 2);
         Assert.True(result.TotalCount >= 3);
         Assert.Equal(1, result.PageNumber);
         Assert.Equal(2, result.PageSize);
@@ -228,12 +228,12 @@ public class TopicsControllerTests : IClassFixture<ForumApiFactory>
         var client = CreateAdminClient();
         var createResponse = await client.PostAsJsonAsync("/api/topics", new TopicRequest("Archived Topic Test"));
         var created = await createResponse.Content.ReadFromJsonAsync<TopicSummaryDto>();
-        await client.PatchAsJsonAsync($"/api/topics/{created.Id}/archive", true);
+        await client.PatchAsJsonAsync($"/api/topics/{created!.Id}/archive", true);
 
         var response = await client.GetAsync("/api/topics?page=1&pageSize=100");
         var result = await response.Content.ReadFromJsonAsync<PagedResponse<TopicSummaryDto>>();
 
-        Assert.DoesNotContain(result.Items, t => t.Id == created.Id);
+        Assert.DoesNotContain(result!.Items, t => t.Id == created.Id);
     }
 
     [Fact]
@@ -243,12 +243,12 @@ public class TopicsControllerTests : IClassFixture<ForumApiFactory>
         // Create and archive a topic
         var createResponse = await client.PostAsJsonAsync("/api/topics", new TopicRequest("Archived Only Topic"));
         var created = await createResponse.Content.ReadFromJsonAsync<TopicSummaryDto>();
-        await client.PatchAsJsonAsync($"/api/topics/{created.Id}/archive", true);
+        await client.PatchAsJsonAsync($"/api/topics/{created!.Id}/archive", true);
 
         var response = await client.GetAsync("/api/topics?page=1&pageSize=100&archived=true");
         var result = await response.Content.ReadFromJsonAsync<PagedResponse<TopicSummaryDto>>();
 
-        Assert.Contains(result.Items, t => t.Id == created.Id);
+        Assert.Contains(result!.Items, t => t.Id == created.Id);
         Assert.All(result.Items, t => Assert.True(t.IsArchived));
     }
 
@@ -259,13 +259,13 @@ public class TopicsControllerTests : IClassFixture<ForumApiFactory>
         var createResponse = await client.PostAsJsonAsync("/api/topics", new TopicRequest("Topic To Archive"));
         var created = await createResponse.Content.ReadFromJsonAsync<TopicSummaryDto>();
 
-        var archiveResponse = await client.PatchAsJsonAsync($"/api/topics/{created.Id}/archive", true);
+        var archiveResponse = await client.PatchAsJsonAsync($"/api/topics/{created!.Id}/archive", true);
 
         Assert.Equal(HttpStatusCode.NoContent, archiveResponse.StatusCode);
 
         var db = _factory.GetDbContext();
         var topicInDb = await db.Topics.FirstOrDefaultAsync(t => t.Id == created.Id);
-        Assert.True(topicInDb.IsArchived);
+        Assert.True(topicInDb!.IsArchived);
     }
 
     [Fact]
@@ -288,14 +288,14 @@ public class TopicsControllerTests : IClassFixture<ForumApiFactory>
         var topicOld = await (await admin.PostAsJsonAsync("/api/topics", new TopicRequest("Topic with Older Messages"))).Content.ReadFromJsonAsync<TopicSummaryDto>();
         var topicNew = await (await admin.PostAsJsonAsync("/api/topics", new TopicRequest("Topic with Newer Messages"))).Content.ReadFromJsonAsync<TopicSummaryDto>();
 
-        await user.PostAsJsonAsync($"/api/topics/{topicOld.Id}/messages", new { Content = "Old message" });
+        await user.PostAsJsonAsync($"/api/topics/{topicOld!.Id}/messages", new { Content = "Old message" });
 
-        await user.PostAsJsonAsync($"/api/topics/{topicNew.Id}/messages", new { Content = "New message" });
+        await user.PostAsJsonAsync($"/api/topics/{topicNew!.Id}/messages", new { Content = "New message" });
 
         var response = await admin.GetAsync("/api/topics?page=1&pageSize=100");
         var result = await response.Content.ReadFromJsonAsync<PagedResponse<TopicSummaryDto>>();
 
-        var topics = result.Items.ToList();
+        var topics = result!.Items.ToList();
         var oldIndex = topics.FindIndex(t => t.Id == topicOld.Id);
         var newIndex = topics.FindIndex(t => t.Id == topicNew.Id);
 
