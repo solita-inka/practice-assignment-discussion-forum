@@ -68,7 +68,6 @@ var app = builder.Build();
 
 
 // ✅ DB init AFTER app is built
-string? dbInitError = null;
 if (app.Environment.IsDevelopment())
 {
     using var scope = app.Services.CreateScope();
@@ -88,16 +87,7 @@ else
 {
     using var scope = app.Services.CreateScope();
     var db = scope.ServiceProvider.GetRequiredService<ForumContext>();
-    try
-    {
-        await db.Database.MigrateAsync();
-    }
-    catch (Exception ex)
-    {
-        dbInitError = ex.ToString();
-        var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
-        logger.LogError(ex, "Failed to apply database migrations");
-    }
+    db.Database.Migrate();
 }
 
 
@@ -115,17 +105,11 @@ app.MapGet("/", () => Results.Ok(new
 {
     status = "running",
     environment = app.Environment.EnvironmentName,
-    hasConnectionString = !string.IsNullOrEmpty(connectionString),
-    connectionStringStart = connectionString?[..Math.Min(30, connectionString.Length)] ?? "NULL",
-    dbError = dbInitError
+    hasConnectionString = !string.IsNullOrEmpty(connectionString)
 }));
 
 
-app.Map("/error", (HttpContext context) =>
-{
-    var error = context.Features.Get<Microsoft.AspNetCore.Diagnostics.IExceptionHandlerFeature>();
-    return Results.Problem(detail: error?.Error?.ToString(), title: "An internal error occurred");
-});
+app.Map("/error", () => Results.Problem("An internal error occurred"));
 
 app.UseAuthentication(); // must come before Authorization
 app.UseMiddleware<UserUpsertMiddleware>(); // upsert user from JWT
