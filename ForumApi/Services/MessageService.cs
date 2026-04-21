@@ -1,5 +1,6 @@
 using ForumApi.Models;
 using ForumApi.DTOs.Messages;
+using ForumApi.Exceptions;
 using ForumApi.Repositories;
 using Microsoft.Extensions.Logging;
 
@@ -23,12 +24,14 @@ public class MessageService : IMessageService
 {
     private readonly IMessageRepository _messageRepository;
     private readonly ITopicRepository _topicRepository;
+    private readonly IContentModerationService _contentModerationService;
     private readonly ILogger<MessageService> _logger;
 
-    public MessageService(IMessageRepository messageRepository, ITopicRepository topicRepository, ILogger<MessageService> logger)
+    public MessageService(IMessageRepository messageRepository, ITopicRepository topicRepository, IContentModerationService contentModerationService, ILogger<MessageService> logger)
     {
         _messageRepository = messageRepository;
         _topicRepository = topicRepository;
+        _contentModerationService = contentModerationService;
         _logger = logger;
     }
 
@@ -57,6 +60,12 @@ public class MessageService : IMessageService
         {
             _logger.LogWarning("Attempt to post to archived topic {TopicId} by user {UserId}", topicId, userId);
             throw new InvalidOperationException("Cannot post to an archived topic.");
+        }
+
+        var moderationResult = await _contentModerationService.AnalyzeContentAsync(content);
+        if (!moderationResult.IsAllowed){
+            _logger.LogWarning("Content moderation failed for user {UserId} on topic {TopicId}: {Reason}", userId, topicId, moderationResult.RejectionReason);
+            throw new ContentModerationException(moderationResult.RejectionReason ?? "Content rejected by moderation.");
         }
 
         var newMessage = new Message
@@ -95,6 +104,14 @@ public class MessageService : IMessageService
             _logger.LogWarning("User {UserId} attempted to modify message {MessageId} owned by {OwnerId}", userId, id, message.CreatedByUserId);
             return MessageOperationResult.Forbidden;
         }
+
+        var moderationResult = await _contentModerationService.AnalyzeContentAsync(content);
+        if (!moderationResult.IsAllowed)
+        {
+            _logger.LogWarning("Content moderation failed for user {UserId} on message {MessageId}: {Reason}", userId, id, moderationResult.RejectionReason);
+            throw new ContentModerationException(moderationResult.RejectionReason ?? "Content rejected by moderation.");
+        }
+
         message.Content = content;
         message.EditedAt = DateTime.UtcNow;
         var success = await _messageRepository.UpdateMessageAsync(message);

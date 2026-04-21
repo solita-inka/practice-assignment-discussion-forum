@@ -17,6 +17,7 @@ builder.Services.AddControllers();
 builder.Services.AddScoped<ITopicService, TopicService>();
 builder.Services.AddScoped<IMessageService, MessageService>();
 builder.Services.AddScoped<IUpVoteService, UpVoteService>();
+builder.Services.AddSingleton<IContentModerationService, ContentModerationService>();
 builder.Services.AddScoped<ITopicRepository, TopicRepository>();
 builder.Services.AddScoped<IMessageRepository, MessageRepository>();
 builder.Services.AddScoped<IUpVoteRepository, UpVoteRepository>();

@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using ForumApi.DTOs.Messages;
+using ForumApi.Exceptions;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using ForumApi.Services;
@@ -58,6 +59,10 @@ public class MessagesController : ControllerBase, IMessageController
             }
             return CreatedAtAction(nameof(GetAllMessagesByTopicId), new { topicId }, createdMessage);
         }
+        catch (ContentModerationException ex)
+        {
+            return BadRequest(new { error = ex.Message });
+        }
         catch (InvalidOperationException ex)
         {
             return Conflict(new { error = ex.Message });
@@ -73,13 +78,20 @@ public class MessagesController : ControllerBase, IMessageController
         {
             return Unauthorized();
         }
-        var result = await _service.ModifyMessageAsync(id, request.Content, userId);
-        return result switch
+        try
         {
-            MessageOperationResult.NotFound => NotFound(),
-            MessageOperationResult.Forbidden => Forbid(),
-            _ => NoContent()
-        };
+            var result = await _service.ModifyMessageAsync(id, request.Content, userId);
+            return result switch
+            {
+                MessageOperationResult.NotFound => NotFound(),
+                MessageOperationResult.Forbidden => Forbid(),
+                _ => NoContent()
+            };
+        }
+        catch (ContentModerationException ex)
+        {
+            return BadRequest(new { error = ex.Message });
+        }
     }
 
     [Authorize(Roles = "User, Admin")]
