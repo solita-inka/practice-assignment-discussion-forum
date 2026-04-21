@@ -16,7 +16,7 @@ public enum MessageOperationResult
 public interface IMessageService
 {
     Task<IEnumerable<MessageResponse>> GetAllMessagesByTopicIdAsync(int topicId);
-    Task<MessageResponse> CreateMessageAsync(int topicId, string content, string userId);
+    Task<MessageResponse?> CreateMessageAsync(int topicId, string content, string userId);
     Task<MessageOperationResult> ModifyMessageAsync(int id, string content, string userId);
     Task<MessageOperationResult> DeleteMessageAsync(int id, string userId);
 }
@@ -48,7 +48,7 @@ public class MessageService : IMessageService
         )).ToList();
     }
 
-    public async Task<MessageResponse> CreateMessageAsync(int topicId, string content, string userId)
+    public async Task<MessageResponse?> CreateMessageAsync(int topicId, string content, string userId)
     {
         var topic = await _topicRepository.GetTopicByIdAsync(topicId);
         if (topic == null)
@@ -80,7 +80,7 @@ public class MessageService : IMessageService
         var createdMessage = await _messageRepository.AddMessageAsync(newMessage);
 
         // Re-fetch to include the User and Upvotes navigation properties
-        createdMessage = await _messageRepository.GetMessageByIdAsync(createdMessage.Id);
+        createdMessage = (await _messageRepository.GetMessageByIdAsync(createdMessage.Id))!;
 
         return new MessageResponse(
             createdMessage.Id,

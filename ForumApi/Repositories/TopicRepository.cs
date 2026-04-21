@@ -7,7 +7,7 @@ namespace ForumApi.Repositories;
 public interface ITopicRepository
 {
     Task<(IEnumerable<Topic> Items, int TotalCount)> GetAllTopicsAsync(int page, int pageSize, bool archived = false);
-    Task<Topic> GetTopicByIdAsync(int id);
+    Task<Topic?> GetTopicByIdAsync(int id);
     Task<Topic> CreateTopicAsync(Topic topic);
     Task<bool> UpdateTopicAsync(int id, string title);
     Task<bool> DeleteTopicAsync(int id);
@@ -42,7 +42,7 @@ public class TopicRepository : ITopicRepository
         return (items, totalCount);
     }
 
-    public async Task<Topic> GetTopicByIdAsync(int id)
+    public async Task<Topic?> GetTopicByIdAsync(int id)
     {   
         return await _context.Topics.FindAsync(id);
     }

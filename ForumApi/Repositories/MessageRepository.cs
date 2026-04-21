@@ -6,7 +6,7 @@ namespace ForumApi.Repositories;
 
 public interface IMessageRepository
 {
-    Task<Message> GetMessageByIdAsync(int id);
+    Task<Message?> GetMessageByIdAsync(int id);
     Task<IEnumerable<Message>> GetMessagesByTopicIdAsync(int topicId);
     Task<Message> AddMessageAsync(Message message);
     Task<bool> UpdateMessageAsync(Message message);
@@ -22,7 +22,7 @@ public class MessageRepository : IMessageRepository
         _context = context;
     }
 
-    public async Task<Message> GetMessageByIdAsync(int id)
+    public async Task<Message?> GetMessageByIdAsync(int id)
     {
         return await _context.Messages
             .Include(m => m.CreatedByUser)
