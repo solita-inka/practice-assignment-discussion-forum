@@ -41,7 +41,7 @@ jobs:
         run: dotnet test ForumApi.Tests/ForumApi.Tests.csproj --verbosity normal
 
       - name: Run function tests
-        run: dotnet test ForumApi.Functions.Tests/ForumApi.Functions.Tests.csproj --verbosity normal
+        run: dotnet test ForumApi.TopicArchiver.Tests/ForumApi.TopicArchiver.Tests.csproj --verbosity normal
 
       - name: Stop SQL Server container
         if: always()
