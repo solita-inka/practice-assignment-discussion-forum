@@ -28,7 +28,7 @@ echo "Running API tests..."
 dotnet test "$SCRIPT_DIR/ForumApi.Tests/ForumApi.Tests.csproj" --verbosity normal
 
 echo "Running Function tests..."
-dotnet test "$SCRIPT_DIR/ForumApi.Functions.Tests/ForumApi.Functions.Tests.csproj" --verbosity normal
+dotnet test "$SCRIPT_DIR/ForumApi.TopicArchiver.Tests/ForumApi.TopicArchiver.Tests.csproj" --verbosity normal
 
 # 4. Cleanup
 echo "Stopping SQL Server container..."

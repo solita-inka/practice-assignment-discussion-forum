@@ -20,7 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ForumApi.Functions\ForumApi.Functions.csproj" />
+    <ProjectReference Include="..\ForumApi.TopicArchiver\ForumApi.TopicArchiver.csproj" />
   </ItemGroup>
 
 </Project>

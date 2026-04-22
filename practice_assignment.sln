@@ -7,9 +7,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ForumApi", "ForumApi\ForumA
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ForumApi.Tests", "ForumApi.Tests\ForumApi.Tests.csproj", "{131935FE-AA82-458B-A510-AA41D24018E2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ForumApi.Functions.Tests", "ForumApi.Functions.Tests\ForumApi.Functions.Tests.csproj", "{49B75488-FBD7-4005-A514-3A9F7F6ACB4C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ForumApi.TopicArchiver.Tests", "ForumApi.TopicArchiver.Tests\ForumApi.TopicArchiver.Tests.csproj", "{49B75488-FBD7-4005-A514-3A9F7F6ACB4C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ForumApi.Functions", "ForumApi.Functions\ForumApi.Functions.csproj", "{0AEE60B6-72A7-4134-A2EC-A3A89CD8EA37}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ForumApi.TopicArchiver", "ForumApi.TopicArchiver\ForumApi.TopicArchiver.csproj", "{0AEE60B6-72A7-4134-A2EC-A3A89CD8EA37}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

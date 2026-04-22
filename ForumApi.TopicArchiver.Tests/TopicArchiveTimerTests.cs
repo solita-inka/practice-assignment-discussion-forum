@@ -3,11 +3,11 @@ using ForumApi.Models;
 using ForumApi.Data;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.DependencyInjection;
-using ForumApi.Functions;
+using ForumApi.TopicArchiver;
 using Microsoft.EntityFrameworkCore;
 using System.Runtime.InteropServices;
 
-namespace ForumApi.Functions.Tests;
+namespace ForumApi.TopicArchiver.Tests;
 
 public class TopicArchiveTimerTests
 {

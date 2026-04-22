@@ -1,6 +1,6 @@
 {
   "profiles": {
-    "ForumApi.Functions": {
+    "ForumApi.TopicArchiver": {
       "commandName": "Project",
       "commandLineArgs": "--port 7007",
       "launchBrowser": false

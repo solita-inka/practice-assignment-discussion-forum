@@ -216,10 +216,11 @@ public class TopicsControllerTests : IClassFixture<ForumApiFactory>
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var result = await response.Content.ReadFromJsonAsync<PagedResponse<TopicSummaryDto>>();
         Assert.NotNull(result);
-        Assert.True(result!.Items.Count() <= 2);
-        Assert.True(result.TotalCount >= 3);
+        Assert.InRange(result!.Items.Count(), 0, 2);
+        Assert.InRange(result.TotalCount, 3, int.MaxValue);
         Assert.Equal(1, result.PageNumber);
         Assert.Equal(2, result.PageSize);
+        Assert.InRange(result.TotalPages, 2, int.MaxValue);
     }
 
     [Fact]

@@ -1,5 +1,5 @@
 {
-    "azureFunctions.deploySubpath": "ForumApi.Functions/bin/Release/net10.0/publish",
+    "azureFunctions.deploySubpath": "ForumApi.TopicArchiver/bin/Release/net10.0/publish",
     "azureFunctions.projectLanguage": "C#",
     "azureFunctions.projectRuntime": "~4",
     "debug.internalConsoleOptions": "neverOpen",

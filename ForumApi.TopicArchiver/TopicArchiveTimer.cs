@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore;
 using ForumApi.Data;
 
-namespace ForumApi.Functions;
+namespace ForumApi.TopicArchiver;
 
 public class TopicArchiveTimer
 {
@@ -30,6 +30,7 @@ public class TopicArchiveTimer
         var timeRangeInDays = Environment.GetEnvironmentVariable("TopicArchiveTimeRangeInDays");
         if (!int.TryParse(timeRangeInDays, out int days))
         {
+            _logger.LogWarning("Failed to parse TopicArchiveTimeRangeInDays (value: '{configValue}'). Using default: {defaultDays} days.", timeRangeInDays, DefaultArchiveTimeRangeInDays);
             days = DefaultArchiveTimeRangeInDays;
         }
         var cutoffDate = DateTime.UtcNow.AddDays(-days);
