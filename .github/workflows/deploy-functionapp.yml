@@ -20,10 +20,10 @@ jobs:
           dotnet-version: '10.x'
 
       - name: Build the Azure Function App
-        run: dotnet build ForumApi.Functions/ForumApi.Functions.csproj --configuration Release
+        run: dotnet build ForumApi.TopicArchiver/ForumApi.TopicArchiver.csproj --configuration Release
 
       - name: Publish the Azure Function App
-        run: dotnet publish ForumApi.Functions/ForumApi.Functions.csproj -c Release -o "${{ env.DOTNET_ROOT }}/functionapp"
+        run: dotnet publish ForumApi.TopicArchiver/ForumApi.TopicArchiver.csproj -c Release -o "${{ env.DOTNET_ROOT }}/functionapp"
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
